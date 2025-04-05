@@ -39,6 +39,7 @@
     "@utils": "src/utils",
     "@libs": "src/lib",
     "@schemas": "src/schemas",
+    "@controllers": "src/controllers",
     "@root": "src"
   }
 }
