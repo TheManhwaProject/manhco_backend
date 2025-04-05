@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["manhco", "waiting_list"]
+}
+
+// Waitlist
+model WaitlistEntry {
+  id          Int    @id @default(autoincrement())
+  firstName   String @db.VarChar(50)
+  secondName  String? @db.VarChar(50)
+  email       String @unique @db.VarChar(255)
+  message     String? @db.VarChar(255)
+
+  @@schema("waiting_list")
+  @@index([email])
+  @@map("waitlist_entry")
+}
