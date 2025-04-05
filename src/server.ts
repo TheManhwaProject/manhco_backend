@@ -1,4 +1,4 @@
-require("module-alias/register");
+import "module-alias/register";
 
 import express, { Application } from "express";
 import ServerConfig from "./app";

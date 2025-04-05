@@ -25,6 +25,8 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
     "@types/node": "^22.14.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.31.0",
     "nodemon": "^3.1.9",
     "prisma": "^6.5.0",
     "ts-node": "^10.9.2",
@@ -35,6 +37,8 @@
     "@config": "src/config",
     "@routes": "src/routes",
     "@utils": "src/utils",
+    "@libs": "src/lib",
+    "@schemas": "src/schemas",
     "@root": "src"
   }
 }
