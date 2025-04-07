@@ -18,6 +18,5 @@ model WaitlistEntry {
   message     String? @db.VarChar(255)
 
   @@schema("waiting_list")
-  @@index([email])
   @@map("waitlist_entry")
 }
