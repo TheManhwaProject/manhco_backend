@@ -19,7 +19,6 @@ export default class ServerConfig {
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
-    // Mount the waitlist router
-    app.use('/', waitlistRoutes);
+
   }
 }
