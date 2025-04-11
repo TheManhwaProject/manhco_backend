@@ -7,7 +7,7 @@ passport.serializeUser((user: any, done) => {
   done(null, user.id);
 });
 
-passport.deserializeUser(async (id: string, done) => {
+passport.deserializeUser(async (id: number, done) => {
   const user = await prisma.users.findUnique({ where: { id } });
   if (!user) return done(new AppError("User not found", 404));
   done(null, user);
@@ -29,14 +29,18 @@ passport.use(
       let user = await prisma.users.findUnique({ where: { googleId } });
 
       if (!user) {
+        const firstName = profile.name?.givenName || "User";
+        const secondName = profile.name?.familyName;
+
         user = await prisma.users.upsert({
           where: { email },
           update: { googleId },
           create: {
             email,
-            name: profile.displayName,
+            firstName,
+            secondName,
             googleId,
-            image: profile.photos?.[0]?.value,
+            profilePic: profile.photos?.[0]?.value,
           },
         });
       }
