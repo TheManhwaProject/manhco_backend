@@ -20,3 +20,21 @@ model WaitlistEntry {
   @@schema("waiting_list")
   @@map("waitlist_entry")
 }
+
+// User model
+model User {
+  id          Int    @id @default(autoincrement())
+  firstName   String @db.VarChar(50)
+  secondName  String? @db.VarChar(50)
+  email       String @unique @db.VarChar(255)
+  googleId    String @unique @db.VarChar(255)
+  profilePic  String? @db.VarChar(255)
+  bannerPic   String? @db.VarChar(255)
+  colorTheme  String? @db.VarChar(255)
+  bio         String? @db.VarChar(255)
+  gender      String? @db.VarChar(255)
+  birthday    DateTime? @db.Date
+
+  @@schema("manhco")
+  @@map("users")
+}
