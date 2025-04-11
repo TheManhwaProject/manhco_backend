@@ -22,7 +22,7 @@ model WaitlistEntry {
 }
 
 // User model
-model User {
+model Users {
   id          Int    @id @default(autoincrement())
   firstName   String @db.VarChar(50)
   secondName  String? @db.VarChar(50)
