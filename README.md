@@ -96,9 +96,18 @@ manhco_backend/
 Create a `.env` file in the root directory with the following variables:
 
 ```env
-DATABASE_URL="postgresql://username:password@hostname:port/database?schema=public"
 PORT=8000
-NODE_ENV=development
+ENVIRONMENT=development
+DATABASE_URL=...
+GOOGLE_OAUTH_CLIENT_ID=...
+GOOGLE_OAUTH_CLIENT_SECRET=.
+SESSION_SECRET=...
+```
+
+Generate the session secret via Python:
+```python
+import secrets
+print(secrets.token_hex(32))
 ```
 
 ## Database Configuration
