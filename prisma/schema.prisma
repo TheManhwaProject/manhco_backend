@@ -6,7 +6,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["manhco", "waiting_list"]
+  schemas  = ["manhco", "waiting_list", "auth"]
 }
 
 // Waitlist
@@ -35,7 +35,26 @@ model Users {
   gender      String? @db.VarChar(255)
   birthday    DateTime? @db.Date
   newUser     Boolean @default(true)
+  role        String @default("user") @db.VarChar(50)
+  
+  // Relationships
+  refreshTokens RefreshToken[]
 
   @@schema("manhco")
   @@map("users")
+}
+
+// Refresh Token model for token rotation
+model RefreshToken {
+  id          Int       @id @default(autoincrement())
+  token       String    @unique @db.VarChar(500)
+  userId      Int
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@schema("auth")
+  @@map("refresh_tokens")
 }
