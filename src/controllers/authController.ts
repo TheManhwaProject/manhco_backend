@@ -54,7 +54,7 @@ export const handleGoogleAuthSuccess = async (
     await tokenService.issueRefreshToken(user.id, res);
 
     // Return tokens
-    return res.status(200).json({
+    res.status(200).json({
       accessToken,
       expiresIn,
       user: {
@@ -97,26 +97,27 @@ export const refreshToken = async (
     const userId = await tokenService.rotateRefreshToken(refreshToken, res);
 
     // Get user from database
-    const user = await prisma.users.findUnique({
-      where: { id: userId }
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { role: true }
     });
 
-    if (!user) {
-      throw new AppError('User not found', 404);
+    if (!user || !user.role) {
+      throw new AppError('User or user role not found', 404);
     }
 
     // Generate token payload
     const tokenPayload: TokenPayload = {
       userId: user.id,
       email: user.email,
-      role: user.role
+      role: user.role.name
     };
 
     // Generate new access token
     const { accessToken, expiresIn } = generateAccessToken(tokenPayload);
 
     // Return new access token
-    return res.status(200).json({
+    res.status(200).json({
       accessToken,
       expiresIn
     });
@@ -144,23 +145,24 @@ export const getCurrentUser = async (
     }
 
     // Get user data from database (to get the most up-to-date information)
-    const dbUser = await prisma.users.findUnique({
-      where: { id: (req.user as any).id }
+    const dbUser = await prisma.user.findUnique({
+      where: { id: (req.user as any).id },
+      include: { role: true }
     });
 
-    if (!dbUser) {
-      throw new AppError('User not found', 404);
+    if (!dbUser || !dbUser.role) {
+      throw new AppError('User or user role not found', 404);
     }
 
     // Return user data (excluding sensitive information)
-    return res.status(200).json({
+    res.status(200).json({
       user: {
         id: dbUser.id,
         email: dbUser.email,
         firstName: dbUser.firstName,
         secondName: dbUser.secondName,
         profilePic: dbUser.profilePic,
-        role: dbUser.role,
+        role: dbUser.role.name,
         newUser: dbUser.newUser
       }
     });
@@ -194,7 +196,7 @@ export const logout = async (
     }
 
     // Return success message
-    return res.status(200).json({
+    res.status(200).json({
       message: 'Logged out successfully'
     });
   } catch (error) {
