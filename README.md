@@ -18,13 +18,8 @@ A Node.js backend service for the Manhco platform, built with Express, TypeScrip
   - [Running the Server (Development)](#running-the-server-development)
   - [Building for Production](#building-for-production)
   - [Running in Production](#running-in-production)
-- [API Endpoints](#api-endpoints)
-  - [Authentication (`/api/v1/auth`)](#authentication-apiv1auth)
-  - [User (`/api/v1/user`)](#user-apiv1user)
-  - [Waitlist (`/api/v1/waitlist`)](#waitlist-apiv1waitlist)
 - [Technology Stack](#technology-stack)
 - [Database](#database)
-  - [Schema Overview](#schema-overview)
   - [Multi-schema Architecture](#multi-schema-architecture)
 - [Authentication & Authorization](#authentication--authorization)
 - [Security](#security)
@@ -194,32 +189,6 @@ yarn start
 
 Ensure `NODE_ENV` environment variable is set to `production` in your deployment environment for optimal performance and security settings (like production CORS origins).
 
-## API Endpoints
-
-The base URL for all API endpoints is `/api/v1`.
-
-### Authentication (`/api/v1/auth`)
-
--   **`GET /google`**: Initiates the Google OAuth 2.0 authentication flow. Redirects the user to Google for login.
--   **`GET /google/callback`**: Callback URL for Google OAuth. Handles user authentication, creates/updates user in the database, generates JWTs, and manages sessions.
--   **`POST /logout`**: Logs the user out, potentially invalidating tokens/sessions.
--   **`POST /refresh`**: Uses a refresh token (likely sent in a cookie or header) to issue a new access token.
--   *(Other potential endpoints: login status, etc.)*
-
-### User (`/api/v1/user`)
-
--   *(Endpoints for managing user profiles, fetching user data, updating settings, etc. will be defined here)*
--   Example: `GET /profile` (Requires authentication)
--   Example: `PUT /profile` (Requires authentication)
-
-### Waitlist (`/api/v1/waitlist`)
-
--   **`POST /entry`**: Creates a new entry in the waitlist.
-    -   Request Body: Matches `WaitlistEntrySchema` (firstName, secondName?, email, message?)
-    -   Response: The created `WaitlistEntry` object.
-
-*(Note: This section should be expanded with detailed request/response examples and required authentication/authorization for each endpoint as they are fully implemented.)*
-
 ## Technology Stack
 
 -   **Backend Framework**: Express.js
@@ -232,15 +201,6 @@ The base URL for all API endpoints is `/api/v1`.
 -   **Development Server**: `ts-node-dev`
 
 ## Database
-
-### Schema Overview
-
-The database schema is managed by Prisma and defined in `prisma/schema.prisma`. Key models include:
-
--   `WaitlistEntry`: Stores information submitted through the waitlist form.
--   `User`: Represents registered application users, storing profile information and linking to roles.
--   `Role`: Defines user roles (e.g., 'user', 'admin') with associated permissions/priority.
--   `RefreshToken`: Stores refresh tokens associated with users for persistent sessions.
 
 ### Multi-schema Architecture
 
