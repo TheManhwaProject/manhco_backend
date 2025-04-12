@@ -1,6 +1,8 @@
 # Manhco Backend
 
-A Node.js backend service for Manhco, built with Express, TypeScript, and Prisma.
+[![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
+
+A Node.js backend service for the Manhco platform, built with Express, TypeScript, Prisma, and PostgreSQL. Handles authentication, user management, waitlist entries, and core API logic.
 
 ## Table of Contents
 
@@ -11,129 +13,154 @@ A Node.js backend service for Manhco, built with Express, TypeScript, and Prisma
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Environment Variables](#environment-variables)
-- [Database Configuration](#database-configuration)
-  - [Multischema Support](#multischema-support)
-- [Development](#development)
-  - [Running the Server](#running-the-server)
-  - [API Endpoints](#api-endpoints)
-- [Deployment](#deployment)
+  - [Database Setup](#database-setup)
+- [Usage](#usage)
+  - [Running the Server (Development)](#running-the-server-development)
+  - [Building for Production](#building-for-production)
+  - [Running in Production](#running-in-production)
+- [API Endpoints](#api-endpoints)
+  - [Authentication (`/api/v1/auth`)](#authentication-apiv1auth)
+  - [User (`/api/v1/user`)](#user-apiv1user)
+  - [Waitlist (`/api/v1/waitlist`)](#waitlist-apiv1waitlist)
+- [Technology Stack](#technology-stack)
+- [Database](#database)
+  - [Schema Overview](#schema-overview)
+  - [Multi-schema Architecture](#multi-schema-architecture)
+- [Authentication & Authorization](#authentication--authorization)
+- [Security](#security)
+- [Configuration](#configuration)
+  - [Module Aliases](#module-aliases)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
+- [License](#license)
 
 ## Overview
 
-Manhco Backend is a RESTful API service providing backend functionality for the Manhco platform. It uses Express.js for handling HTTP requests, Prisma as an ORM for PostgreSQL database interactions, and TypeScript for type safety.
+Manhco Backend provides the core RESTful API services for the Manhco application. It leverages a modern tech stack including Express.js for the web framework, Prisma as the ORM for interacting with a PostgreSQL database, TypeScript for robust type-safety, and Passport.js for handling authentication.
 
 ## Features
 
-- **TypeScript** for type safety and improved developer experience
-- **Express.js** as the web server framework
-- **Prisma ORM** for database operations with PostgreSQL
-- **Multi-schema database** architecture for better organization
-- **Zod** for request validation
-- **Error handling** middleware
-- **Waitlist entry API** for collecting user information
+- **Framework**: Express.js
+- **Language**: TypeScript
+- **Database ORM**: Prisma
+- **Database**: PostgreSQL
+- **Authentication**: Passport.js (Google OAuth 2.0 strategy), JWT (Access & Refresh Tokens), Session Management
+- **Validation**: Zod for request validation
+- **API Versioning**: `/api/v1/`
+- **Security**: CORS configuration, CSRF protection (via middleware), Cookie Parser
+- **Environment Management**: `dotenv` for environment variables
+- **Modular Design**: Multi-schema database, module aliases for cleaner imports
+- **Error Handling**: Centralized error handling middleware
 
 ## Project Structure
 
 ```
 manhco_backend/
-├── prisma/                   # Prisma configuration and schema
+├── prisma/                   # Prisma configuration
 │   └── schema.prisma         # Database schema definition
 ├── src/
-│   ├── controllers/          # Request handlers for routes
-│   │   └── waitlistController.ts
-│   ├── libs/                 # Shared libraries
-│   │   └── prisma.ts         # Prisma client initialization
-│   ├── middlewares/          # Express middlewares
-│   ├── routes/               # API route definitions
-│   │   └── v1/
-│   │       └── waitlist/
-│   │           └── waitlistRoutes.ts
-│   ├── schemas/              # Request/response validation schemas
-│   │   └── waitlistEntrySchema.ts
+│   ├── config/               # Configuration files (if any)
+│   ├── controllers/          # Request handlers (logic)
+│   ├── lib/                  # Shared libraries (e.g., Prisma client)
+│   ├── middleware/           # Express middleware (auth, error, session, csrf)
+│   ├── passport/             # Passport.js strategy configurations (e.g., Google)
+│   ├── routes/               # API route definitions (v1)
+│   ├── schemas/              # Zod validation schemas
+│   ├── services/             # Business logic services
+│   ├── types/                # Custom TypeScript types/interfaces
 │   ├── utils/                # Utility functions
-│   │   └── errorHandler.ts   # Error handling utilities
-│   ├── app.ts                # Express app configuration
-│   └── server.ts             # Server entry point
-├── .env                      # Environment variables
+│   ├── app.ts                # Express application configuration (middleware, etc.)
+│   └── server.ts             # Server entry point (starts server, defines routes)
+├── .env                      # Environment variables (ignored by git)
 ├── .gitignore                # Git ignore file
-├── package.json              # Dependencies and scripts
-├── tsconfig.json             # TypeScript configuration
-└── README.md                 # Project documentation
+├── package.json              # Project metadata and dependencies
+├── tsconfig.json             # TypeScript compiler options
+├── README.md                 # This file
+└── PRISMA_MULTISCHEMA_TROUBLESHOOTING.md # Guide for multi-schema issues
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js (v16+)
+- Node.js (Latest LTS version recommended)
 - npm or yarn
-- PostgreSQL database (NeonDB or similar PostgreSQL provider)
+- PostgreSQL Database (e.g., local instance, NeonDB, Supabase)
 
 ### Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/manhco_backend.git
-   cd manhco_backend
-   ```
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/yourusername/manhco_backend.git # Replace with your repo URL
+    cd manhco_backend
+    ```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
-3. Generate Prisma client:
-   ```bash
-   npx prisma generate
-   ```
+3.  **Generate Prisma client:**
+    This step is crucial after installing dependencies or changing the schema.
+    ```bash
+    npx prisma generate
+    ```
 
 ### Environment Variables
 
-Create a `.env` file in the root directory with the following variables:
+Create a `.env` file in the root directory. Copy the example below and fill in your actual credentials and settings.
 
 ```env
+# Server Configuration
 PORT=8000
-ENVIRONMENT=development
-CORS_ORIGIN_DEV=...
-CORS_ORIGIN_PROD=...
-DATABASE_URL=...
-GOOGLE_OAUTH_CLIENT_ID=...
-GOOGLE_OAUTH_CLIENT_SECRET=.
-SESSION_SECRET=...
+ENVIRONMENT=development # 'development' or 'production'
+
+# CORS Origins (adjust for your frontend URLs)
+CORS_ORIGIN_DEV=http://localhost:3000 # Example for local dev frontend
+CORS_ORIGIN_PROD=https://your-production-frontend.com # Example for deployed frontend
+
+# Database Connection (PostgreSQL)
+# Example: postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public
+DATABASE_URL="your_database_connection_string"
+
+# Google OAuth 2.0 Credentials
+# Obtain from Google Cloud Console: https://console.cloud.google.com/apis/credentials
+GOOGLE_CLIENT_ID="your_google_client_id"
+GOOGLE_CLIENT_SECRET="your_google_client_secret"
+GOOGLE_CALLBACK_URL="http://localhost:8000/api/v1/auth/google/callback" # Adjust host/port if needed
+
+# Security & Session
+SESSION_SECRET="your_strong_random_secret_for_sessions" # Generate using the Python command below
+COOKIE_SECRET="your_strong_random_secret_for_cookies" # Generate using the Python command below
+
+# JWT Secrets
+JWT_ACCESS_SECRET="your_strong_random_secret_for_access_tokens" # Generate using the Python command below
+JWT_REFRESH_SECRET="your_strong_random_secret_for_refresh_tokens" # Generate using the Python command below
+
+# --- How to Generate Secrets ---
+# Use this Python command in your terminal for each secret:
+# python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-Generate the session secret via Python:
-```python
-import secrets
-print(secrets.token_hex(32))
-```
+**Important:** Ensure all required variables listed in `src/server.ts` (especially `GOOGLE_*`, `JWT_*`, `SESSION_SECRET`, `DATABASE_URL`) are present and correctly configured. The server will fail to start if authentication-related variables are missing.
 
-## Database Configuration
+### Database Setup
 
-The project uses PostgreSQL with Prisma ORM. The database schema is defined in `prisma/schema.prisma`.
+1.  **Ensure PostgreSQL server is running** and accessible with the connection string provided in `.env`.
+2.  **Synchronize Prisma schema with your database:**
+    This command creates the schemas (`manhco`, `waiting_list`, `auth`) and tables defined in `prisma/schema.prisma`.
+    ```bash
+    npx prisma db push
+    ```
+    *(For development, if you need to reset the database, use `npx prisma db push --force-reset` - This deletes all data!)*
 
-### Multischema Support
+## Usage
 
-This project uses Prisma's multischema feature to organize the database logically. The database is currently configured with the following schemas:
+### Running the Server (Development)
 
-- `manhco`: Main application schema
-- `waiting_list`: Stores waitlist-related tables
-
-To sync the database with your Prisma schema, run:
-
-```bash
-npx prisma db push
-```
-
-## Development
-
-### Running the Server
-
-Start the development server with hot reload:
+Start the development server with hot-reloading enabled:
 
 ```bash
 npm run dev
@@ -141,84 +168,141 @@ npm run dev
 yarn dev
 ```
 
-The server will start on the port specified in your `.env` file (default: 8000).
+The server will typically start on `http://localhost:8000` (or the `PORT` specified in `.env`).
 
-### API Endpoints
+### Building for Production
 
-#### Waitlist API
+Compile the TypeScript code into JavaScript:
 
-- **Create a waitlist entry**:
-  - `POST /api/v1/waitlist/entry`
-  - Request body:
-    ```json
-    {
-      "firstName": "John",
-      "secondName": "Doe",
-      "email": "john.doe@example.com",
-      "message": "Looking forward to using the platform!"
-    }
-    ```
-  - Response:
-    ```json
-    {
-      "id": 1,
-      "firstName": "John",
-      "secondName": "Doe",
-      "email": "john.doe@example.com",
-      "message": "Looking forward to using the platform!"
-    }
-    ```
+```bash
+npm run build
+# or
+yarn build
+```
 
-## Deployment
+This will create a `dist/` directory with the compiled code.
 
-### Production Build
+### Running in Production
 
-1. Build the TypeScript code:
-   ```bash
-   npm run build
-   # or
-   yarn build
-   ```
+Start the server using the compiled JavaScript code:
 
-2. Start the production server:
-   ```bash
-   npm start
-   # or
-   yarn start
-   ```
+```bash
+npm start
+# or
+yarn start
+```
 
-### Deploying to a Hosting Service
+Ensure `NODE_ENV` environment variable is set to `production` in your deployment environment for optimal performance and security settings (like production CORS origins).
 
-For production deployment, consider:
-- Docker containerization
-- Platform as a Service (PaaS) like Heroku, Render, or Railway
-- Serverless deployment using AWS Lambda, Vercel, or Netlify
+## API Endpoints
+
+The base URL for all API endpoints is `/api/v1`.
+
+### Authentication (`/api/v1/auth`)
+
+-   **`GET /google`**: Initiates the Google OAuth 2.0 authentication flow. Redirects the user to Google for login.
+-   **`GET /google/callback`**: Callback URL for Google OAuth. Handles user authentication, creates/updates user in the database, generates JWTs, and manages sessions.
+-   **`POST /logout`**: Logs the user out, potentially invalidating tokens/sessions.
+-   **`POST /refresh`**: Uses a refresh token (likely sent in a cookie or header) to issue a new access token.
+-   *(Other potential endpoints: login status, etc.)*
+
+### User (`/api/v1/user`)
+
+-   *(Endpoints for managing user profiles, fetching user data, updating settings, etc. will be defined here)*
+-   Example: `GET /profile` (Requires authentication)
+-   Example: `PUT /profile` (Requires authentication)
+
+### Waitlist (`/api/v1/waitlist`)
+
+-   **`POST /entry`**: Creates a new entry in the waitlist.
+    -   Request Body: Matches `WaitlistEntrySchema` (firstName, secondName?, email, message?)
+    -   Response: The created `WaitlistEntry` object.
+
+*(Note: This section should be expanded with detailed request/response examples and required authentication/authorization for each endpoint as they are fully implemented.)*
+
+## Technology Stack
+
+-   **Backend Framework**: Express.js
+-   **Language**: TypeScript
+-   **Database**: PostgreSQL
+-   **ORM**: Prisma
+-   **Authentication**: Passport.js (Google OAuth 2.0), JSON Web Tokens (JWT)
+-   **Validation**: Zod
+-   **Package Manager**: npm / yarn
+-   **Development Server**: `ts-node-dev`
+
+## Database
+
+### Schema Overview
+
+The database schema is managed by Prisma and defined in `prisma/schema.prisma`. Key models include:
+
+-   `WaitlistEntry`: Stores information submitted through the waitlist form.
+-   `User`: Represents registered application users, storing profile information and linking to roles.
+-   `Role`: Defines user roles (e.g., 'user', 'admin') with associated permissions/priority.
+-   `RefreshToken`: Stores refresh tokens associated with users for persistent sessions.
+
+### Multi-schema Architecture
+
+The database utilizes Prisma's multi-schema feature for logical separation:
+
+-   **`manhco`**: Contains core application data (e.g., `users` table).
+-   **`waiting_list`**: Contains tables related to the waitlist feature (e.g., `waitlist_entry` table).
+-   **`auth`**: Contains tables related to authentication and authorization (e.g., `roles`, `refresh_tokens` tables).
+
+Refer to `prisma/schema.prisma` for detailed definitions and relationships.
+
+## Authentication & Authorization
+
+-   **Authentication Strategy**: Google OAuth 2.0 via Passport.js.
+-   **Session Management**: `express-session` is used, likely storing session IDs in cookies.
+-   **Token-Based Auth**: JWT (JSON Web Tokens) are used for API authentication after initial login.
+    -   **Access Tokens**: Short-lived tokens granting access to protected resources.
+    -   **Refresh Tokens**: Longer-lived tokens stored securely (e.g., in HTTP-only cookies) used to obtain new access tokens without re-login.
+-   **Authorization**: Role-based access control is implemented using the `Role` model linked to `User`. Middleware likely checks user roles for protected routes/actions.
+
+## Security
+
+-   **CORS**: Configured via `cors` middleware, allowing requests only from specified origins (different for development and production).
+-   **CSRF Protection**: `validateCsrfToken` middleware suggests protection against Cross-Site Request Forgery attacks, likely using tokens synchronized between frontend and backend.
+-   **Session Security**: Uses `cookie-parser` and `express-session` with secrets stored in environment variables. Consider configuring secure, HTTP-only cookies.
+-   **Input Validation**: Zod schemas are used to validate incoming request data.
+-   **Environment Variables**: Sensitive credentials (API keys, secrets, database URL) are managed via `.env` file and should not be committed to version control.
+-   **Helmet.js** (Recommended): Consider adding Helmet.js middleware for setting various security-related HTTP headers.
+
+## Configuration
+
+### Module Aliases
+
+The project uses `module-alias` (configured in `package.json`) for shorter, cleaner import paths:
+
+-   `@config`: `src/config`
+-   `@routes`: `src/routes`
+-   `@utils`: `src/utils`
+-   `@libs`: `src/lib`
+-   `@schemas`: `src/schemas`
+-   `@controllers`: `src/controllers`
+-   `@root`: `src`
 
 ## Troubleshooting
 
-### Database Issues
-
-If you encounter database-related issues, especially with the multischema setup, refer to the troubleshooting guide:
-
-- [Prisma Multischema Troubleshooting](./PRISMA_MULTISCHEMA_TROUBLESHOOTING.md)
-
-Common database issues can be solved by:
-
-```bash
-# Synchronize your schema with the database
-npx prisma db push
-
-# Reset the database (dev environments only - will delete data)
-npx prisma db push --force-reset
-
-# Regenerate the Prisma client
-npx prisma generate
-```
+-   **Database Connection Issues**: Verify `DATABASE_URL` in `.env`. Check if the PostgreSQL server is running and accessible. Ensure firewall rules allow connection.
+-   **Prisma Schema Sync Errors**: Run `npx prisma generate` after schema changes. Use `npx prisma db push` to apply changes. Consult `PRISMA_MULTISCHEMA_TROUBLESHOOTING.md` for specific multi-schema issues.
+-   **Missing Environment Variables**: Check the server startup logs for errors related to missing variables (especially auth-related ones). Ensure your `.env` file is correctly formatted and loaded.
+-   **CORS Errors**: Ensure `CORS_ORIGIN_DEV` or `CORS_ORIGIN_PROD` in `.env` matches the origin of your frontend application exactly. Check browser console logs for details.
+-   **Authentication Issues**: Double-check Google OAuth credentials and callback URL configuration in `.env` and Google Cloud Console. Verify JWT and Session secrets are set.
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin feature/your-feature-name`
-5. Submit a pull request
+1.  Fork the repository.
+2.  Create a feature branch: `git checkout -b feature/your-feature-name`
+3.  Make your changes.
+4.  Commit your changes: `git commit -am 'Add some feature'`
+5.  Push to the branch: `git push origin feature/your-feature-name`
+6.  Submit a pull request.
+
+Please ensure code quality, add tests if applicable, and update documentation as needed.
+
+## License
+
+This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details (or refer to the ISC license text).
