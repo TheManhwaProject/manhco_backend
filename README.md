@@ -242,7 +242,7 @@ The project uses `module-alias` (configured in `package.json`) for shorter, clea
 -   `@libs`: `src/lib`
 -   `@schemas`: `src/schemas`
 -   `@controllers`: `src/controllers`
--   `@root`: `src`
+-   `@`: `src`
 
 ## Troubleshooting
 
