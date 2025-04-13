@@ -50,6 +50,6 @@
     "@libs": "src/lib",
     "@schemas": "src/schemas",
     "@controllers": "src/controllers",
-    "@root": "src"
+    "@": "src"
   }
 }

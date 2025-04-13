@@ -44,7 +44,7 @@ model User {
   refreshTokens RefreshToken[]
 
   @@schema("manhco")
-  @@map("users")
+  @@map("user")
 }
 
 // Role model
@@ -57,7 +57,7 @@ model Role {
   users     User[]
 
   @@schema("auth")
-  @@map("roles")
+  @@map("role")
 }
 
 // Refresh Token model for token rotation
@@ -72,5 +72,5 @@ model RefreshToken {
   
   @@index([userId])
   @@schema("auth")
-  @@map("refresh_tokens")
+  @@map("refresh_token")
 }
