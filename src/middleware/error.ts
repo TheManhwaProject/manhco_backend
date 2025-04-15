@@ -13,6 +13,7 @@ export default (
   res.status(statusCode).json({
     error: {
       message: err.message,
+      appCode: err.appCode,
       details: err.details || null,
     },
   });

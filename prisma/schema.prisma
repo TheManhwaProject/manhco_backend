@@ -36,7 +36,7 @@ model User {
   birthday    DateTime? @db.Date
   newUser     Boolean   @default(true)
   nsfwEnabled Boolean   @default(false)
-  country     String    @db.VarChar(255) // ISO 3166-1 alpha-2
+  country     String?   @db.VarChar(255) // ISO 3166-1 alpha-2
 
   // Role relationship
   roleId Int

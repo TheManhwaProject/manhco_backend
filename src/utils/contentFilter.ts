@@ -1,5 +1,7 @@
 import { User } from "@prisma/client";
 import { prisma } from "@libs/prisma";
+import axios from "axios";
+import { z } from "zod";
 
 type NSFWBandResult =
   | { band: 3 }
@@ -13,6 +15,24 @@ type NSFWBandResult =
         | "birthday_required"
         | "underage";
     };
+
+const IpAPI = `http://ip-api.com/json/`;
+const IpApiResponse = z.object({
+  query: z.string(),
+  status: z.string(),
+  country: z.string(),
+  countryCode: z.string(),
+  region: z.string(),
+  regionName: z.string(),
+  city: z.string(),
+  zip: z.string(),
+  lat: z.number(),
+  lon: z.number(),
+  timezone: z.string(),
+  isp: z.string(),
+  org: z.string(),
+  as: z.string(),
+});
 
 export async function getUserBand(user: User): Promise<NSFWBandResult> {
   const nsfwPolicy = await prisma.nSFWPolicy.findUnique({ where: { id: 1 } });
@@ -51,4 +71,34 @@ function calculateAge(birthday: Date): number {
   }
 
   return age;
+}
+
+async function getIpCountry(ip: string): Promise<string | null> {
+  try {
+    const url = IpAPI + ip;
+    const res = await axios.get(url, { timeout: 3000 });
+    const data = IpApiResponse.safeParse(res.data);
+
+    if (!data.success) {
+      console.warn("Invalid IP API response:", data.error.format());
+      return null;
+    }
+
+    return data.data.countryCode;
+  } catch (err) {
+    console.error("Failed to get country from IP:", err);
+    return null;
+  }
+}
+
+function isIpValid(ip: string): boolean {
+  return /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/.test(ip);
+}
+
+export async function assignUserCountry(user: User, ip: string): Promise<void> {
+  if (!isIpValid(ip)) return;
+  const country = await getIpCountry(ip);
+  if (!country) return;
+  user.country = country;
+  await prisma.user.update({ where: { id: user.id }, data: { country } });
 }

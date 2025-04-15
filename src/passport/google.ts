@@ -53,7 +53,6 @@ passport.use(
             googleId,
             profilePic: profile.photos?.[0]?.value,
             roleId: defaultRoleId,
-            country: "",
           },
           include: { role: true },
         });
