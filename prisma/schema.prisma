@@ -88,7 +88,7 @@ model NSFWPolicy {
 
 model NSFWRestrictedCountry {
   id          Int    @id @default(autoincrement())
-  countryCode String // ISO 3166-1 alpha-2
+  countryCode String @unique // ISO 3166-1 alpha-2
   band        Int // 1 or 2
 
   @@map("nsfw_restricted_countries")

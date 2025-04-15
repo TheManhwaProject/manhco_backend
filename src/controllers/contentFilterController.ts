@@ -124,3 +124,86 @@ export const toggleUserNSFWStatus = async (
     next(error);
   }
 };
+
+/**
+ * Get admin settings for NSFW policy
+ *
+ * Returns the nsfw policy and band 1/2 countries
+ */
+export const getNSFWPolicy = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const nsfwPolicy = await prisma.nSFWPolicy.findUnique({ where: { id: 1 } });
+    const restrictedCountries = await prisma.nSFWRestrictedCountry.findMany();
+
+    res.status(200).json({
+      nsfwPolicy,
+      restrictedCountries,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Adds a new restricted country to the NSFW policy
+ */
+export const addRestrictedCountry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const country = req.body.country;
+    const band = req.body.band;
+
+    if (!country || !band) {
+      throw new AppError("Missing country or band", 400);
+    }
+
+    await prisma.nSFWRestrictedCountry.create({
+      data: {
+        countryCode: country,
+        band,
+      },
+    });
+
+    res.status(200).json({
+      message: "Country added successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Removes a restricted country from the NSFW policy
+ */
+export const removeRestrictedCountry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const country = req.body.country;
+
+    if (!country) {
+      throw new AppError("Missing country", 400);
+    }
+
+    await prisma.nSFWRestrictedCountry.delete({
+      where: {
+        countryCode: country,
+      },
+    });
+
+    res.status(200).json({
+      message: "Country removed successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
