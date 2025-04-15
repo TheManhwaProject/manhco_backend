@@ -63,8 +63,8 @@ export const handleGoogleAuthSuccess = async (
         firstName: user.firstName,
         secondName: user.secondName,
         profilePic: user.profilePic,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
   } catch (error) {
     next(error);
