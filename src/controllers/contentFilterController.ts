@@ -11,22 +11,18 @@ export const getUserNSFWStatus = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const user = req.user as any;
-    const nsfwStatus = await prisma.user.findUnique({
-      where: { id: user.id },
-    });
+  const user = req.user as any;
+  const nsfwStatus = await prisma.user.findUnique({
+    where: { id: user.id },
+  });
 
-    if (!nsfwStatus || !nsfwStatus.nsfwEnabled) {
-      throw new AppError("User not found", 404);
-    }
-
-    res.status(200).json({
-      nsfwEnabled: nsfwStatus.nsfwEnabled,
-    });
-  } catch (error) {
-    next(error);
+  if (!nsfwStatus || !nsfwStatus.nsfwEnabled) {
+    throw new AppError("User not found", 404);
   }
+
+  res.status(200).json({
+    nsfwEnabled: nsfwStatus.nsfwEnabled,
+  });
 };
 
 /**
@@ -45,83 +41,79 @@ export const toggleUserNSFWStatus = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const user = req.user as any;
-    const nsfwStatus = await prisma.user.findUnique({
+  const user = req.user as any;
+  const userModel = await prisma.user.findUnique({
+    where: { id: user.id },
+  });
+
+  if (!userModel) {
+    throw new AppError("User not found", 404);
+  }
+
+  // get user band
+  const band = await getUserBand(userModel);
+
+  // if user is trying to disable it, allow it
+  if (req.body.nsfwEnabled === false) {
+    res.status(200).json({
+      nsfwEnabled: false,
+    });
+    return;
+  }
+
+  if (band.band === 1) {
+    // band.reason appcode, also return a human readable message
+    let message;
+    switch (band.reason) {
+      case "missing_nsfw_policy":
+        message = "NSFW policy not found";
+        break;
+      case "country_banned":
+        message = "This feature is not available in your country";
+        break;
+      case "country_limited":
+        // this will only occur if band 2 is disabled
+        message = "This feature is not available in your country";
+        break;
+      case "birthday_required":
+        message = "You must provide your birthday to use this feature";
+        break;
+      case "underage":
+        message = "You must be at least 18 years old to use this feature";
+        break;
+      default:
+        message = "This feature is not available in your country";
+    }
+
+    throw new AppError(message, 403, band.reason);
+  } else if (band.band === 2) {
+    // if band 2 is enabled, but user is not verified, return error
+    if (!userModel.verifiedForNSFW) {
+      throw new AppError(
+        "You must verify your age to use this feature",
+        403,
+        "country_limited"
+      );
+    }
+    // if band 2 is enabled and user is verified, toggle nsfw status
+    await prisma.user.update({
       where: { id: user.id },
+      data: { nsfwEnabled: true },
     });
 
-    if (!nsfwStatus || !nsfwStatus.nsfwEnabled) {
-      throw new AppError("User not found", 404);
-    }
+    res.status(200).json({
+      nsfwEnabled: true,
+    });
+  } else {
+    // if band 3 is enabled, toggle nsfw status
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { nsfwEnabled: true },
+    });
 
-    // get user band
-    const band = await getUserBand(nsfwStatus);
-
-    // if user is trying to disable it, allow it
-    if (req.body.nsfwEnabled === false) {
-      res.status(200).json({
-        nsfwEnabled: false,
-      });
-      return;
-    }
-
-    if (band.band === 1) {
-      // band.reason appcode, also return a human readable message
-      let message;
-      switch (band.reason) {
-        case "missing_nsfw_policy":
-          message = "NSFW policy not found";
-          break;
-        case "country_banned":
-          message = "This feature is not available in your country";
-          break;
-        case "country_limited":
-          // this will only occur if band 2 is disabled
-          message = "This feature is not available in your country";
-          break;
-        case "birthday_required":
-          message = "You must provide your birthday to use this feature";
-          break;
-        case "underage":
-          message = "You must be at least 18 years old to use this feature";
-          break;
-        default:
-          message = "This feature is not available in your country";
-      }
-
-      return new AppError(message, 403, band.reason);
-    } else if (band.band === 2) {
-      // if band 2 is enabled, but user is not verified, return error
-      if (!nsfwStatus.verifiedForNSFW) {
-        return new AppError(
-          "You must verify your age to use this feature",
-          403,
-          "country_limited"
-        );
-      }
-      // if band 2 is enabled and user is verified, toggle nsfw status
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { nsfwEnabled: true },
-      });
-
-      res.status(200).json({
-        nsfwEnabled: true,
-      });
-    } else {
-      // if band 3 is enabled, toggle nsfw status
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { nsfwEnabled: true },
-      });
-
-      res.status(200).json({
-        nsfwEnabled: true,
-      });
-    }
-  } catch (error) {
-    next(error);
+    res.status(200).json({
+      nsfwEnabled: true,
+    });
   }
 };
 
