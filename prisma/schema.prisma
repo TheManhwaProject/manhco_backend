@@ -35,6 +35,8 @@ model User {
   gender      String? @db.VarChar(255)
   birthday    DateTime? @db.Date
   newUser     Boolean @default(true)
+  nsfwEnabled Boolean @default(false)
+  country     String  @db.VarChar(255)
 
   // Role relationship
   roleId      Int
