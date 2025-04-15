@@ -1,28 +1,26 @@
-import { Request, Response, NextFunction } from 'express';
-import { prisma } from '@libs/prisma';
-import { AppError } from '@utils/errorHandler';
-import {
-  generateAccessToken,
-  TokenPayload
-} from '@utils/jwtUtils';
-import * as tokenService from '../services/tokenService';
+import { Request, Response, NextFunction } from "express";
+import { prisma } from "@libs/prisma";
+import { AppError } from "@utils/errorHandler";
+import { generateAccessToken, TokenPayload } from "@utils/jwtUtils";
+import * as tokenService from "../services/tokenService";
+import { assignUserCountry } from "@utils/contentFilter";
 
 /**
  * Authentication Controller
- * 
+ *
  * This module handles authentication-related operations:
  * - JWT token generation after Google OAuth authentication
  * - Token refresh for continuing sessions
  * - User logout and token revocation
  * - Getting current user information
- * 
+ *
  * Implementation follows SOLID principles with single responsibility
  * for each function.
  */
 
 /**
  * Generates JWT tokens after successful Google OAuth authentication
- * 
+ *
  * @param req - Express request object
  * @param res - Express response object
  * @param next - Express next function
@@ -34,17 +32,26 @@ export const handleGoogleAuthSuccess = async (
 ) => {
   try {
     // User should be attached by Passport
-    if (!req.user || !('id' in req.user)) {
-      throw new AppError('Authentication failed', 401);
+    if (!req.user || !("id" in req.user)) {
+      throw new AppError("Authentication failed", 401);
     }
 
     const user = req.user as any;
+
+    // If user doesn't have a country, assign it
+    if (!user.country) {
+      const ip =
+        req.headers["x-forwarded-for"]?.toString().split(",")[0].trim() ||
+        req.socket.remoteAddress ||
+        "";
+      await assignUserCountry(user, ip);
+    }
 
     // Generate token payload
     const tokenPayload: TokenPayload = {
       userId: user.id,
       email: user.email,
-      role: user.role
+      role: user.role,
     };
 
     // Generate access token
@@ -63,8 +70,8 @@ export const handleGoogleAuthSuccess = async (
         firstName: user.firstName,
         secondName: user.secondName,
         profilePic: user.profilePic,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
   } catch (error) {
     next(error);
@@ -73,10 +80,10 @@ export const handleGoogleAuthSuccess = async (
 
 /**
  * Refreshes access token using refresh token cookie
- * 
+ *
  * Implements token rotation for security - each time a refresh token
  * is used, a new refresh token is issued.
- * 
+ *
  * @param req - Express request object
  * @param res - Express response object
  * @param next - Express next function
@@ -90,7 +97,7 @@ export const refreshToken = async (
     // Get refresh token from cookies
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      throw new AppError('Refresh token not provided', 401);
+      throw new AppError("Refresh token not provided", 401);
     }
 
     // Rotate refresh token (validates, deletes old token, issues new token)
@@ -99,18 +106,18 @@ export const refreshToken = async (
     // Get user from database
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { role: true }
+      include: { role: true },
     });
 
     if (!user || !user.role) {
-      throw new AppError('User or user role not found', 404);
+      throw new AppError("User or user role not found", 404);
     }
 
     // Generate token payload
     const tokenPayload: TokenPayload = {
       userId: user.id,
       email: user.email,
-      role: user.role.name
+      role: user.role.name,
     };
 
     // Generate new access token
@@ -119,7 +126,7 @@ export const refreshToken = async (
     // Return new access token
     res.status(200).json({
       accessToken,
-      expiresIn
+      expiresIn,
     });
   } catch (error) {
     next(error);
@@ -128,7 +135,7 @@ export const refreshToken = async (
 
 /**
  * Get current authenticated user's information
- * 
+ *
  * @param req - Express request object (with user attached by authenticate middleware)
  * @param res - Express response object
  * @param next - Express next function
@@ -141,17 +148,17 @@ export const getCurrentUser = async (
   try {
     // User should be attached by authenticate middleware
     if (!req.user) {
-      throw new AppError('User not authenticated', 401);
+      throw new AppError("User not authenticated", 401);
     }
 
     // Get user data from database (to get the most up-to-date information)
     const dbUser = await prisma.user.findUnique({
       where: { id: (req.user as any).id },
-      include: { role: true }
+      include: { role: true },
     });
 
     if (!dbUser || !dbUser.role) {
-      throw new AppError('User or user role not found', 404);
+      throw new AppError("User or user role not found", 404);
     }
 
     // Return user data (excluding sensitive information)
@@ -163,8 +170,8 @@ export const getCurrentUser = async (
         secondName: dbUser.secondName,
         profilePic: dbUser.profilePic,
         role: dbUser.role.name,
-        newUser: dbUser.newUser
-      }
+        newUser: dbUser.newUser,
+      },
     });
   } catch (error) {
     next(error);
@@ -173,7 +180,7 @@ export const getCurrentUser = async (
 
 /**
  * Logs out a user by invalidating the refresh token
- * 
+ *
  * @param req - Express request object
  * @param res - Express response object
  * @param next - Express next function
@@ -186,7 +193,7 @@ export const logout = async (
   try {
     // Get refresh token from cookies
     const refreshToken = req.cookies.refreshToken;
-    
+
     // Invalidate refresh token if it exists
     if (refreshToken) {
       await tokenService.invalidateRefreshToken(refreshToken, res);
@@ -197,7 +204,7 @@ export const logout = async (
 
     // Return success message
     res.status(200).json({
-      message: 'Logged out successfully'
+      message: "Logged out successfully",
     });
   } catch (error) {
     next(error);
@@ -206,10 +213,10 @@ export const logout = async (
 
 // Helper function to clear refresh token cookie
 const clearRefreshTokenCookie = (res: Response): void => {
-  res.clearCookie('refreshToken', {
+  res.clearCookie("refreshToken", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    path: '/api/v1/auth/refresh'
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/api/v1/auth/refresh",
   });
-}; 
+};

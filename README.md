@@ -2,32 +2,7 @@
 
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 
-A Node.js backend service for the Manhco platform, built with Express, TypeScript, Prisma, and PostgreSQL. Handles authentication, user management, waitlist entries, and core API logic.
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Environment Variables](#environment-variables)
-  - [Database Setup](#database-setup)
-- [Usage](#usage)
-  - [Running the Server (Development)](#running-the-server-development)
-  - [Building for Production](#building-for-production)
-  - [Running in Production](#running-in-production)
-- [Technology Stack](#technology-stack)
-- [Database](#database)
-  - [Multi-schema Architecture](#multi-schema-architecture)
-- [Authentication & Authorization](#authentication--authorization)
-- [Security](#security)
-- [Configuration](#configuration)
-  - [Module Aliases](#module-aliases)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
+A Node.js backend service for the Manhco platform, built with Express, TypeScript, Prisma, and PostgreSQL.
 
 ## Overview
 
@@ -242,7 +217,8 @@ The project uses `module-alias` (configured in `package.json`) for shorter, clea
 -   `@libs`: `src/lib`
 -   `@schemas`: `src/schemas`
 -   `@controllers`: `src/controllers`
--   `@`: `src`
+-   `@middleware`: `src/middleware`
+-   `@root`: `src`
 
 ## Troubleshooting
 

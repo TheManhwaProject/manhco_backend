@@ -6,34 +6,37 @@ import "module-alias/register";
 
 import express, { Application } from "express";
 import ServerConfig from "./app";
-import errorMiddleware from "./middleware/error";
-import waitlistRoutes from "@routes/v1/waitlist/waitlistRoutes";
-import authRoutes from "@routes/v1/auth/authRoutes";
-import userRoutes from "@routes/v1/user/userRoutes";
+import router from "@routes/v1";
 
 // Initialize passport configuration
 import "./passport/google";
 
 // --- Environment Variable Validation ---
 const requiredAuthEnvVars: string[] = [
-  'GOOGLE_CLIENT_ID',
-  'GOOGLE_CLIENT_SECRET',
-  'GOOGLE_CALLBACK_URL',
-  'JWT_ACCESS_SECRET',
-  'JWT_REFRESH_SECRET',
-  'SESSION_SECRET',
-  'DATABASE_URL' // Crucial for token/user storage
+  "GOOGLE_CLIENT_ID",
+  "GOOGLE_CLIENT_SECRET",
+  "GOOGLE_CALLBACK_URL",
+  "JWT_ACCESS_SECRET",
+  "JWT_REFRESH_SECRET",
+  "SESSION_SECRET",
+  "DATABASE_URL", // Crucial for token/user storage
 ];
 
-const missingAuthEnvVars: string[] = requiredAuthEnvVars.filter(varName => !process.env[varName]);
+const missingAuthEnvVars: string[] = requiredAuthEnvVars.filter(
+  (varName) => !process.env[varName]
+);
 
 if (missingAuthEnvVars.length > 0) {
-  console.error('FATAL ERROR: Missing required authentication environment variables:');
-  missingAuthEnvVars.forEach(varName => console.error(`  - ${varName}`));
-  console.error('Server cannot start without these variables. Check your .env file or environment configuration.');
+  console.error(
+    "FATAL ERROR: Missing required authentication environment variables:"
+  );
+  missingAuthEnvVars.forEach((varName) => console.error(`  - ${varName}`));
+  console.error(
+    "Server cannot start without these variables. Check your .env file or environment configuration."
+  );
   process.exit(1); // Exit the application with an error code
 } else {
-   console.log('Authentication environment variables validated.');
+  console.log("Authentication environment variables validated.");
 }
 // --- End Environment Variable Validation ---
 
@@ -42,9 +45,7 @@ const server: ServerConfig = new ServerConfig(app);
 const PORT: number = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
 
 // API routes
-app.use("/api/v1/waitlist", waitlistRoutes);
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/user", userRoutes);
+app.use("/api/v1", router);
 
 app
   .listen(PORT, "localhost", function () {
