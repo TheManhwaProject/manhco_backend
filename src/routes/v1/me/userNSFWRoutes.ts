@@ -7,7 +7,7 @@ import { authenticate } from "@middleware/authMiddleware";
 
 const router = Router();
 
-router.get("/nsfwStatus", authenticate, getUserNSFWStatus);
-router.post("/nsfwStatus", authenticate, toggleUserNSFWStatus);
+router.get("/nsfw-status", authenticate, getUserNSFWStatus);
+router.post("/nsfw-status", authenticate, toggleUserNSFWStatus);
 
 export default router;
