@@ -38,9 +38,11 @@ export async function getUserBand(user: User): Promise<NSFWBandResult> {
   const nsfwPolicy = await prisma.nSFWPolicy.findUnique({ where: { id: 1 } });
   if (!nsfwPolicy) return { band: 1, reason: "missing_nsfw_policy" };
 
-  const restriction = await prisma.nSFWRestrictedCountry.findFirst({
-    where: { countryCode: user.country },
-  });
+  const restriction = user.country
+    ? await prisma.nSFWRestrictedCountry.findFirst({
+        where: { countryCode: user.country },
+      })
+    : null;
 
   if (!user.birthday) return { band: 1, reason: "birthday_required" };
 

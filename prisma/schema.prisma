@@ -23,20 +23,21 @@ model WaitlistEntry {
 
 // User model
 model User {
-  id          Int       @id @default(autoincrement())
-  firstName   String    @db.VarChar(50)
-  secondName  String?   @db.VarChar(50)
-  email       String    @unique @db.VarChar(255)
-  googleId    String    @unique @db.VarChar(255)
-  profilePic  String?   @db.VarChar(255)
-  bannerPic   String?   @db.VarChar(255)
-  colorTheme  String?   @db.VarChar(255)
-  bio         String?   @db.VarChar(255)
-  gender      String?   @db.VarChar(255)
-  birthday    DateTime? @db.Date
-  newUser     Boolean   @default(true)
-  nsfwEnabled Boolean   @default(false)
-  country     String?   @db.VarChar(255) // ISO 3166-1 alpha-2
+  id              Int       @id @default(autoincrement())
+  firstName       String    @db.VarChar(50)
+  secondName      String?   @db.VarChar(50)
+  email           String    @unique @db.VarChar(255)
+  googleId        String    @unique @db.VarChar(255)
+  profilePic      String?   @db.VarChar(255)
+  bannerPic       String?   @db.VarChar(255)
+  colorTheme      String?   @db.VarChar(255)
+  bio             String?   @db.VarChar(255)
+  gender          String?   @db.VarChar(255)
+  birthday        DateTime? @db.Date
+  newUser         Boolean   @default(true)
+  nsfwEnabled     Boolean   @default(false)
+  verifiedForNSFW Boolean   @default(false)  // for band 2, age verification
+  country         String?   @db.VarChar(255) // ISO 3166-1 alpha-2
 
   // Role relationship
   roleId Int
