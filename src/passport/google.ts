@@ -2,9 +2,13 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { prisma } from "@libs/prisma";
 import { parsePrismaError, AppError } from "@utils/errorHandler";
+import type { SessionUser } from "@/types/sessionUser";
 
 // Add log here
-console.log('[passport/google.ts] GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
+console.log(
+  "[passport/google.ts] GOOGLE_CLIENT_ID:",
+  process.env.GOOGLE_CLIENT_ID
+);
 
 passport.serializeUser((user: any, done) => {
   done(null, user.id);
@@ -13,7 +17,7 @@ passport.serializeUser((user: any, done) => {
 passport.deserializeUser(async (id: number, done) => {
   const user = await prisma.user.findUnique({
     where: { id },
-    include: { role: true }
+    include: { role: true },
   });
   if (!user) return done(new AppError("User not found", 404));
   done(null, user);
@@ -32,9 +36,9 @@ passport.use(
 
       if (!email) return done(null, false);
 
-      let user = await prisma.user.findUnique({ 
+      let user = await prisma.user.findUnique({
         where: { googleId },
-        include: { role: true }
+        include: { role: true },
       });
 
       if (!user) {
