@@ -6,8 +6,8 @@ import {
   logout,
   getCurrentUser 
 } from "@controllers/authController";
-import { authenticate } from "../../../middleware/authMiddleware";
-import { setCsrfToken } from "../../../middleware/csrfMiddleware";
+import { authenticate } from "@middleware/authMiddleware";
+import { setCsrfToken } from "@middleware/csrfMiddleware";
 
 const router = Router();
 
