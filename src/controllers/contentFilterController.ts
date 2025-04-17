@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "@libs/prisma";
-import { AppError } from "@utils/errorHandler";
+import { AppError, ErrorAppCode } from "@utils/errorHandler";
 import { getUserBand } from "@utils/contentFilter";
 
 /**
@@ -17,7 +17,7 @@ export const getUserNSFWStatus = async (
   });
 
   if (!nsfwStatus || !nsfwStatus.nsfwEnabled) {
-    throw new AppError("User not found", 404);
+    throw new AppError("User not found", 404, ErrorAppCode.UserNotFound);
   }
 
   res.status(200).json({
@@ -47,7 +47,7 @@ export const toggleUserNSFWStatus = async (
   });
 
   if (!userModel) {
-    throw new AppError("User not found", 404);
+    throw new AppError("User not found", 404, ErrorAppCode.UserNotFound);
   }
 
   // get user band
@@ -65,20 +65,20 @@ export const toggleUserNSFWStatus = async (
     // band.reason appcode, also return a human readable message
     let message;
     switch (band.reason) {
-      case "missing_nsfw_policy":
+      case ErrorAppCode.MissingNSFWPolicy:
         message = "NSFW policy not found";
         break;
-      case "country_banned":
+      case ErrorAppCode.CountryBanned:
         message = "This feature is not available in your country";
         break;
-      case "country_limited":
+      case ErrorAppCode.CountryLimited:
         // this will only occur if band 2 is disabled
         message = "This feature is not available in your country";
         break;
-      case "birthday_required":
+      case ErrorAppCode.BirthdayRequired:
         message = "You must provide your birthday to use this feature";
         break;
-      case "underage":
+      case ErrorAppCode.Underage:
         message = "You must be at least 18 years old to use this feature";
         break;
       default:
@@ -92,7 +92,7 @@ export const toggleUserNSFWStatus = async (
       throw new AppError(
         "You must verify your age to use this feature",
         403,
-        "country_limited"
+        ErrorAppCode.CountryLimited
       );
     }
     // if band 2 is enabled and user is verified, toggle nsfw status
@@ -153,7 +153,11 @@ export const addRestrictedCountry = async (
     const band = req.body.band;
 
     if (!country || !band) {
-      throw new AppError("Missing country or band", 400);
+      throw new AppError(
+        "Missing country or band",
+        400,
+        ErrorAppCode.ValidationFailed
+      );
     }
 
     await prisma.nSFWRestrictedCountry.create({
@@ -183,7 +187,7 @@ export const removeRestrictedCountry = async (
     const country = req.body.country;
 
     if (!country) {
-      throw new AppError("Missing country", 400);
+      throw new AppError("Missing country", 400, ErrorAppCode.ValidationFailed);
     }
 
     await prisma.nSFWRestrictedCountry.delete({

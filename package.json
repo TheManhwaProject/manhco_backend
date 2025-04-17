@@ -52,6 +52,7 @@
     "@schemas": "src/schemas",
     "@controllers": "src/controllers",
     "@middleware": "src/middleware",
+    "@types": "src/types",
     "@root": "src"
   }
 }

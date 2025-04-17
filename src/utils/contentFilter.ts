@@ -2,18 +2,14 @@ import { User } from "@prisma/client";
 import { prisma } from "@libs/prisma";
 import axios from "axios";
 import { z } from "zod";
+import { ErrorAppCode } from "./errorHandler";
 
 type NSFWBandResult =
   | { band: 3 }
   | { band: 2 }
   | {
       band: 1;
-      reason:
-        | "missing_nsfw_policy"
-        | "country_banned"
-        | "country_limited"
-        | "birthday_required"
-        | "underage";
+      reason: ErrorAppCode;
     };
 
 const IpAPI = `http://ip-api.com/json/`;
@@ -36,7 +32,7 @@ const IpApiResponse = z.object({
 
 export async function getUserBand(user: User): Promise<NSFWBandResult> {
   const nsfwPolicy = await prisma.nSFWPolicy.findUnique({ where: { id: 1 } });
-  if (!nsfwPolicy) return { band: 1, reason: "missing_nsfw_policy" };
+  if (!nsfwPolicy) return { band: 1, reason: ErrorAppCode.MissingNSFWPolicy };
 
   const restriction = user.country
     ? await prisma.nSFWRestrictedCountry.findFirst({
@@ -44,19 +40,19 @@ export async function getUserBand(user: User): Promise<NSFWBandResult> {
       })
     : null;
 
-  if (!user.birthday) return { band: 1, reason: "birthday_required" };
+  if (!user.birthday) return { band: 1, reason: ErrorAppCode.BirthdayRequired };
 
   const age = calculateAge(user.birthday);
-  if (age < 18) return { band: 1, reason: "underage" };
+  if (age < 18) return { band: 1, reason: ErrorAppCode.Underage };
 
   if (restriction?.band === 1) {
-    return { band: 1, reason: "country_banned" };
+    return { band: 1, reason: ErrorAppCode.CountryBanned };
   }
 
   if (restriction?.band === 2) {
     return nsfwPolicy.band2Enabled
       ? { band: 2 }
-      : { band: 1, reason: "country_limited" };
+      : { band: 1, reason: ErrorAppCode.CountryLimited };
   }
 
   return { band: 3 };
