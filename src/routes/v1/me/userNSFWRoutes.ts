@@ -3,11 +3,10 @@ import {
   getUserNSFWStatus,
   toggleUserNSFWStatus,
 } from "@controllers/contentFilterController";
-import { authenticate } from "@middleware/authMiddleware";
 
 const router = Router();
 
-router.get("/nsfw-status", authenticate, getUserNSFWStatus);
-router.post("/nsfw-status", authenticate, toggleUserNSFWStatus);
+router.get("/nsfw-status", getUserNSFWStatus);
+router.post("/nsfw-status", toggleUserNSFWStatus);
 
 export default router;

@@ -1,11 +1,13 @@
 import { Router } from "express";
-import { authenticate } from "@middleware/authMiddleware";
+import { authenticate, requireOwnership } from "@middleware/authMiddleware";
 import userNSFWRoutes from "./userNSFWRoutes";
+import userProfileRoutes from "./userProfile";
 
 const router = Router();
 
 router.use(authenticate);
 
-router.use("/", userNSFWRoutes);
+router.use("/", requireOwnership(), userNSFWRoutes);
+router.use("/", userProfileRoutes);
 
 export default router;
