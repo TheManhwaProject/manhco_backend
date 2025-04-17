@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "@libs/prisma";
-import { AppError } from "@utils/errorHandler";
+import { AppError, ErrorAppCode } from "@utils/errorHandler";
 import { generateAccessToken, TokenPayload } from "@utils/jwtUtils";
 import * as tokenService from "../services/tokenService";
 import { assignUserCountry } from "@utils/contentFilter";
@@ -33,7 +33,11 @@ export const handleGoogleAuthSuccess = async (
   try {
     // User should be attached by Passport
     if (!req.user || !("id" in req.user)) {
-      throw new AppError("Authentication failed", 401);
+      throw new AppError(
+        "Authentication failed",
+        401,
+        ErrorAppCode.Unauthorised
+      );
     }
 
     const user = req.user as any;
@@ -97,7 +101,11 @@ export const refreshToken = async (
     // Get refresh token from cookies
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      throw new AppError("Refresh token not provided", 401);
+      throw new AppError(
+        "Refresh token not provided",
+        401,
+        ErrorAppCode.Unauthorised
+      );
     }
 
     // Rotate refresh token (validates, deletes old token, issues new token)
@@ -110,7 +118,11 @@ export const refreshToken = async (
     });
 
     if (!user || !user.role) {
-      throw new AppError("User or user role not found", 404);
+      throw new AppError(
+        "User or user role not found",
+        404,
+        ErrorAppCode.UserNotFound
+      );
     }
 
     // Generate token payload
@@ -148,7 +160,11 @@ export const getCurrentUser = async (
   try {
     // User should be attached by authenticate middleware
     if (!req.user) {
-      throw new AppError("User not authenticated", 401);
+      throw new AppError(
+        "User not authenticated",
+        401,
+        ErrorAppCode.Unauthorised
+      );
     }
 
     // Get user data from database (to get the most up-to-date information)
@@ -158,7 +174,11 @@ export const getCurrentUser = async (
     });
 
     if (!dbUser || !dbUser.role) {
-      throw new AppError("User or user role not found", 404);
+      throw new AppError(
+        "User or user role not found",
+        404,
+        ErrorAppCode.Unauthorised
+      );
     }
 
     // Return user data (excluding sensitive information)
