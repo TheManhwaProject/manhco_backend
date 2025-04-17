@@ -2,7 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "@libs/prisma";
 import { AppError, ErrorAppCode } from "@utils/errorHandler";
 import { ZodError } from "zod";
-import { userProfileSetupSchema } from "@root/types/userProfileSetup";
+import {
+  userProfileSetupSchema,
+  userProfileSchema,
+} from "@root/types/userProfileSetup";
 
 // Sets up a profile
 export const profileSetupHandler = async (
@@ -100,4 +103,58 @@ export const getUserProfile = async (
   }
 
   res.status(200).json({ user });
+};
+
+/**
+ * Edits any part of the user's profile
+ * Fields:
+ * - username (optional)
+ * - bio (optional)
+ * - profilePic (optional)
+ * - bannerPic (optional)
+ * - colorTheme (optional)
+ */
+export const editUserProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const userId = req.user?.id;
+  const data = userProfileSchema.parse(req.body);
+
+  const result = await prisma.$transaction(async (tx) => {
+    // Find the user by ID
+    const user = await tx.user.findUnique({
+      where: { id: userId },
+      select: { username: true, updatedAt: true },
+    });
+
+    // If user not found, throw custom error
+    if (!user) {
+      throw new AppError("User not found", 404, ErrorAppCode.UserNotFound);
+    }
+
+    // Update the user profile with new data
+    const updated = await tx.user.update({
+      where: { id: userId },
+      data: {
+        username: data.username,
+        bio: data.bio,
+        profilePic: data.profilePic,
+        bannerPic: data.bannerPic,
+        colorTheme: data.colorTheme,
+        newUser: true,
+      },
+    });
+
+    return updated;
+  });
+
+  // If we have a valid result, send back the updated user profile
+  if (result && typeof result === "object" && "username" in result) {
+    res.status(200).json({ user: result });
+  } else {
+    // If result is invalid, send an internal server error
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
