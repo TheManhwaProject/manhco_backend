@@ -11,6 +11,7 @@ export enum ErrorAppCode {
   Underage = "underage",
   UnknownError = "unknown_error",
   Unauthorised = "unauthorised",
+  BadInput = "bad_input",
 }
 
 export class AppError extends Error {
