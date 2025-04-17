@@ -11,6 +11,7 @@ export enum ErrorAppCode {
   Underage = "underage",
   UnknownError = "unknown_error",
   Unauthorised = "unauthorised",
+  InsufficientPermissions = "insufficient_permissions",
   BadInput = "bad_input",
 }
 
