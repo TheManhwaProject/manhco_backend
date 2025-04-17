@@ -2,7 +2,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { prisma } from "@libs/prisma";
 import { parsePrismaError, AppError } from "@utils/errorHandler";
-import type { SessionUser } from "@/types/sessionUser";
+import type { SessionUser } from "@root/types/sessionUser";
 
 // Add log here
 console.log(
