@@ -63,3 +63,41 @@ export const profileSetupHandler = async (
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+/**
+ * Returns the user's profile data
+ */
+export const getUserProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const userId = req.user?.id;
+
+  // Find the user by ID
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      username: true,
+      firstName: true,
+      secondName: true,
+      email: true,
+      profilePic: true,
+      bannerPic: true,
+      colorTheme: true,
+      bio: true,
+      gender: true,
+      birthday: true,
+      newUser: true,
+      nsfwEnabled: true,
+      verifiedForNSFW: true,
+      country: true,
+    },
+  });
+
+  if (!user) {
+    throw new AppError("User not found", 404, ErrorAppCode.UserNotFound);
+  }
+
+  res.status(200).json({ user });
+};
