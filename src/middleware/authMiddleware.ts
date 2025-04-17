@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyAccessToken, TokenPayload } from "@utils/jwtUtils";
-import { AppError } from "@utils/errorHandler";
+import { AppError, ErrorAppCode } from "@utils/errorHandler";
 import { isRoleAllowed } from "@utils/roleUtils";
 import { prisma } from "@libs/prisma"; // Import Prisma client
 import { User as PrismaUser, Role } from "@prisma/client"; // Import Prisma types
@@ -55,7 +55,13 @@ export const authenticate = async (
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       // Use return to stop execution and avoid calling next(error) implicitly
-      return next(new AppError("Authorization header missing or invalid", 401));
+      return next(
+        new AppError(
+          "Authorization header missing or invalid",
+          401,
+          ErrorAppCode.Unauthorised
+        )
+      );
     }
 
     // Extract and verify token
@@ -70,7 +76,13 @@ export const authenticate = async (
 
     if (!user) {
       // Use return to stop execution
-      return next(new AppError("User associated with token not found", 401));
+      return next(
+        new AppError(
+          "User associated with token not found",
+          401,
+          ErrorAppCode.Unauthorised
+        )
+      );
     }
 
     // Assign the fetched user (which matches the augmented Express.User type)
@@ -86,6 +98,7 @@ export const authenticate = async (
       new AppError(
         "Authentication failed",
         500,
+        ErrorAppCode.Unknown,
         error instanceof Error ? error.message : "Unknown error"
       )
     );
@@ -108,11 +121,19 @@ export const requireExactRoles = (
     try {
       // Explicitly check if user and user.role exist
       if (!req.user || !req.user.role) {
-        throw new AppError("User not authenticated or role missing", 401);
+        throw new AppError(
+          "User not authenticated or role missing",
+          401,
+          ErrorAppCode.Unauthorised
+        );
       }
       // Access role name
       if (!roles.includes(req.user.role.name)) {
-        throw new AppError("Insufficient permissions", 403);
+        throw new AppError(
+          "Insufficient permissions",
+          403,
+          ErrorAppCode.InsufficientPermissions
+        );
       }
       next();
     } catch (error) {
@@ -137,11 +158,19 @@ export const requireRoles = (
     try {
       // Explicitly check if user and user.role exist
       if (!req.user || !req.user.role) {
-        throw new AppError("User not authenticated or role missing", 401);
+        throw new AppError(
+          "User not authenticated or role missing",
+          401,
+          ErrorAppCode.Unauthorised
+        );
       }
       // Pass role name to isRoleAllowed
       if (!isRoleAllowed(req.user.role.name, roles, true)) {
-        throw new AppError("Insufficient permissions", 403);
+        throw new AppError(
+          "Insufficient permissions",
+          403,
+          ErrorAppCode.InsufficientPermissions
+        );
       }
       next();
     } catch (error) {
@@ -204,18 +233,30 @@ export const requireOwnership = (
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
       if (!req.user || typeof req.user.id !== "number") {
-        throw new AppError("User not authenticated or invalid", 401);
+        throw new AppError(
+          "User not authenticated or invalid",
+          401,
+          ErrorAppCode.Unauthorised
+        );
       }
 
       const targetUserId = resolveTargetId(req);
       const parsedTargetId = Number(targetUserId);
 
       if (isNaN(parsedTargetId)) {
-        throw new AppError("Target user ID is not a valid number", 400);
+        throw new AppError(
+          "Target user ID is not a valid number",
+          400,
+          ErrorAppCode.BadInput
+        );
       }
 
       if (req.user.id !== parsedTargetId) {
-        throw new AppError("User does not own resource", 403);
+        throw new AppError(
+          "User does not own resource",
+          403,
+          ErrorAppCode.InsufficientPermissions
+        );
       }
 
       next();
