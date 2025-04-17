@@ -1,6 +1,7 @@
 // type for appcodes
 export enum ErrorAppCode {
   Unknown = "unknown",
+  ServerError = "server_error",
   ValidationFailed = "validation_failed",
   UserNotFound = "user_not_found",
   UserAlreadyExists = "user_already_exists",
@@ -9,7 +10,6 @@ export enum ErrorAppCode {
   CountryLimited = "country_limited",
   BirthdayRequired = "birthday_required",
   Underage = "underage",
-  UnknownError = "unknown_error",
   Unauthorised = "unauthorised",
   InsufficientPermissions = "insufficient_permissions",
   BadInput = "bad_input",
