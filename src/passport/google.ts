@@ -1,7 +1,7 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { prisma } from "@libs/prisma";
-import { parsePrismaError, AppError } from "@utils/errorHandler";
+import { parsePrismaError, AppError, ErrorAppCode } from "@utils/errorHandler";
 import type { SessionUser } from "@root/types/sessionUser";
 
 // Add log here
@@ -19,7 +19,8 @@ passport.deserializeUser(async (id: number, done) => {
     where: { id },
     include: { role: true },
   });
-  if (!user) return done(new AppError("User not found", 404));
+  if (!user)
+    return done(new AppError("User not found", 404, ErrorAppCode.UserNotFound));
   done(null, user);
 });
 

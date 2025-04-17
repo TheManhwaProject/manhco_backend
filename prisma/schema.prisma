@@ -24,7 +24,7 @@ model WaitlistEntry {
 // User model
 model User {
   id              Int       @id @default(autoincrement())
-  username        String    @unique @db.VarChar(255)
+  username        String?   @unique @db.VarChar(255)
   firstName       String    @db.VarChar(50)
   secondName      String?   @db.VarChar(50)
   email           String    @unique @db.VarChar(255)
@@ -37,7 +37,7 @@ model User {
   birthday        DateTime? @db.Date
   newUser         Boolean   @default(true)
   nsfwEnabled     Boolean   @default(false)
-  verifiedForNSFW Boolean   @default(false)  // for band 2, age verification
+  verifiedForNSFW Boolean   @default(false) // for band 2, age verification
   country         String?   @db.VarChar(255) // ISO 3166-1 alpha-2
 
   // Role relationship
