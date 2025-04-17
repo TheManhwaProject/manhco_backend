@@ -24,6 +24,7 @@ model WaitlistEntry {
 // User model
 model User {
   id              Int       @id @default(autoincrement())
+  username        String    @unique @db.VarChar(255)
   firstName       String    @db.VarChar(50)
   secondName      String?   @db.VarChar(50)
   email           String    @unique @db.VarChar(255)
@@ -45,6 +46,10 @@ model User {
 
   // Relationships
   refreshTokens RefreshToken[]
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("users")
   @@schema("manhco")
