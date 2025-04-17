@@ -12,60 +12,54 @@ export const profileSetupHandler = async (
 ) => {
   const userId = req.user?.id;
 
-  try {
-    const data = userProfileSetupSchema.parse(req.body);
+  // Validate request body with Zod
+  const data = userProfileSetupSchema.parse(req.body);
 
-    const result = await prisma.$transaction(async (tx) => {
-      const user = await tx.user.findUnique({
-        where: { id: userId },
-        select: { username: true, updatedAt: true },
-      });
-
-      if (!user) {
-        throw new AppError("User not found", 404, ErrorAppCode.UserNotFound);
-      }
-
-      // Check if username is taken by someone else
-      if (data.username !== user.username) {
-        const exists = await tx.user.findUnique({
-          where: { username: data.username },
-        });
-        if (exists) {
-          throw new AppError(
-            "Username already taken",
-            409,
-            ErrorAppCode.BadInput
-          );
-        }
-      }
-
-      const updated = await tx.user.update({
-        where: { id: userId },
-        data: {
-          username: data.username,
-          bio: data.bio,
-          newUser: true,
-        },
-      });
-
-      return updated;
+  // Begin transaction for database operations
+  const result = await prisma.$transaction(async (tx) => {
+    // Find the user by ID
+    const user = await tx.user.findUnique({
+      where: { id: userId },
+      select: { username: true, updatedAt: true },
     });
 
-    if (!result || (typeof result === "object" && "status" in result)) {
-      return;
+    // If user not found, throw custom error
+    if (!user) {
+      throw new AppError("User not found", 404, ErrorAppCode.UserNotFound);
     }
 
-    return res.status(200).json({ user: result });
-  } catch (err) {
-    if (err instanceof ZodError) {
-      throw new AppError(
-        "Validation failed",
-        400,
-        ErrorAppCode.ValidationFailed,
-        err.flatten()
-      );
+    // Check if the username is taken by someone else
+    if (data.username !== user.username) {
+      const exists = await tx.user.findUnique({
+        where: { username: data.username },
+      });
+      if (exists) {
+        throw new AppError(
+          "Username already taken",
+          409,
+          ErrorAppCode.BadInput
+        );
+      }
     }
 
-    return res.status(500).json({ error: "Internal server error" });
+    // Update the user profile with new data
+    const updated = await tx.user.update({
+      where: { id: userId },
+      data: {
+        username: data.username,
+        bio: data.bio,
+        newUser: true,
+      },
+    });
+
+    return updated;
+  });
+
+  // If we have a valid result, send back the updated user profile
+  if (result && typeof result === "object" && "username" in result) {
+    res.status(200).json({ user: result });
+  } else {
+    // If result is invalid, send an internal server error
+    res.status(500).json({ error: "Internal server error" });
   }
 };
