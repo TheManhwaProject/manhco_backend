@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "@libs/prisma";
 import { AppError, ErrorAppCode } from "@utils/errorHandler";
-import { ZodError } from "zod";
 import {
   userProfileSetupSchema,
   userProfileSchema,

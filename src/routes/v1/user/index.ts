@@ -10,15 +10,6 @@ const router = Router();
  * Some routes additionally require specific user roles or role hierarchy.
  */
 
-// Route accessible to all authenticated users
-router.get('/profile', authenticate, (req, res) => {
-  // User info is available in req.user due to the authenticate middleware
-  res.status(200).json({
-    message: 'Profile data retrieved successfully',
-    user: req.user
-  });
-});
-
 // Route accessible only to users with admin role (exact match required)
 router.get('/admin-dashboard', authenticate, requireExactRoles(['admin']), (req, res) => {
   res.status(200).json({
