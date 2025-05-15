@@ -5,6 +5,7 @@ import passport from "passport";
 import cookieParser from "cookie-parser";
 import { validateCsrfToken } from "./middleware/csrfMiddleware";
 import errorMiddleware from "./middleware/error";
+import helmet from "helmet";
 
 export default class ServerConfig {
   constructor(app: Application) {
@@ -23,6 +24,40 @@ export default class ServerConfig {
       ],
       credentials: true,
     };
+    
+    if (process.env.ENVIRONMENT === "production") {
+      app.use(
+        helmet({
+          xFrameOptions: { action: "deny" },
+          xXssProtection: true,
+          strictTransportSecurity: {
+            maxAge: 31536000,
+            includeSubDomains: true,
+            preload: true,
+          },
+          contentSecurityPolicy: {
+            directives: {
+              defaultSrc: ["'self'"],
+              scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com"],
+              styleSrc: ["'self'", "'unsafe-inline'"],
+              imgSrc: ["'self'", "data:"],
+              fontSrc: ["'self'"],
+              connectSrc: ["'self'", "https://www.google-analytics.com"],
+            },
+          },
+          referrerPolicy: {
+            policy: "no-referrer-when-downgrade"
+          },
+        })
+      );
+    } else {
+      app.use(
+        helmet({
+          contentSecurityPolicy: false,
+          strictTransportSecurity: false,
+        })
+      )
+    }
 
     app.use(cors(corsOptions));
     app.use(express.json());
@@ -38,7 +73,7 @@ export default class ServerConfig {
   }
 
   private getCorsOrigin(env: string | undefined): string[] | string | boolean {
-    switch (env) {
+    switch (env) {    
       case "development":
         if (!process.env.CORS_ORIGIN_DEV) {
           console.warn(`No CORS origin set for ${env}`);
