@@ -4,12 +4,20 @@ import {
   getUserProfile,
   editUserProfile,
 } from "@controllers/profileController";
-import { ProfilePictureProcessor } from "@root/services/ProfilePictureProcessor";
+import {
+  uploadProfilePicture,
+  uploadProfilePictureMiddleware,
+} from "@controllers/pfpUpload";
 
 const router = Router();
 
 router.post("/profile-setup", profileSetupHandler);
 router.get("/profile", getUserProfile);
 router.put("/profile", editUserProfile);
+router.post(
+  "/profile-picture",
+  uploadProfilePictureMiddleware,
+  uploadProfilePicture
+);
 
 export default router;
