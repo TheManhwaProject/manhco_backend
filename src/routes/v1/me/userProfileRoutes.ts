@@ -4,6 +4,7 @@ import {
   getUserProfile,
   editUserProfile,
 } from "@controllers/profileController";
+import { ProfilePictureProcessor } from "@root/services/ProfilePictureProcessor";
 
 const router = Router();
 

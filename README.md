@@ -109,6 +109,11 @@ COOKIE_SECRET="your_strong_random_secret_for_cookies" # Generate using the Pytho
 JWT_ACCESS_SECRET="your_strong_random_secret_for_access_tokens" # Generate using the Python command below
 JWT_REFRESH_SECRET="your_strong_random_secret_for_refresh_tokens" # Generate using the Python command below
 
+# AWS
+AWS_REGION="your_aws_region"
+AWS_ACCESS_KEY_ID="your_aws_access_key_id"
+AWS_SECRET_ACCESS_KEY="your_aws_secret_access_key"
+
 # --- How to Generate Secrets ---
 # Use this Python command in your terminal for each secret:
 # python -c "import secrets; print(secrets.token_hex(32))"
