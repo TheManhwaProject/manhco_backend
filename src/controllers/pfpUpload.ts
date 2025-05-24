@@ -44,6 +44,23 @@ export const uploadProfilePicture = async (
       );
     }
 
+    // Get the current pfp if any
+    const userRecord = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { profilePic: true },
+    });
+    if (userRecord?.profilePic) {
+      const url = new URL(userRecord.profilePic);
+      const key = decodeURIComponent(url.pathname.slice(1));
+
+      await s3
+        .deleteObject({
+          Bucket: process.env.AWS_S3_BUCKET!,
+          Key: key,
+        })
+        .promise();
+    }
+
     const key = `profile-pictures/${user.id}/${randomUUID()}.jpeg`;
 
     await s3
