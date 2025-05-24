@@ -113,6 +113,7 @@ JWT_REFRESH_SECRET="your_strong_random_secret_for_refresh_tokens" # Generate usi
 AWS_REGION="your_aws_region"
 AWS_ACCESS_KEY_ID="your_aws_access_key_id"
 AWS_SECRET_ACCESS_KEY="your_aws_secret_access_key"
+AWS_S3_BUCKET="profile_pictures"
 
 # --- How to Generate Secrets ---
 # Use this Python command in your terminal for each secret:
