@@ -3,7 +3,7 @@ import { AppError, ErrorAppCode } from "@utils/errorHandler";
 
 const ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/webp"];
 const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
-const MAX_DIMENSION = 2096;
+const MAX_DIMENSION = 1024;
 const MIN_DIMENSION = 128;
 const OUTPUT_DIMENSION = 128;
 

@@ -6,8 +6,13 @@ import { randomUUID } from "crypto";
 import { AppError, ErrorAppCode } from "@utils/errorHandler";
 import { makeSingleUploadMiddleware } from "@utils/upload";
 
-export const uploadProfilePictureMiddleware =
-  makeSingleUploadMiddleware("profilePicture");
+export const uploadProfilePictureMiddleware = makeSingleUploadMiddleware(
+  "profilePicture",
+  {
+    maxSizeMB: 2,
+    allowedMimeTypes: ["image/jpeg", "image/png"],
+  }
+);
 
 export const uploadProfilePicture = async (
   req: Request,
