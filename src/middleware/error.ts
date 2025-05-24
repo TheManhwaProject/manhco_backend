@@ -1,6 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "../utils/errorHandler";
 
+export const buildErrorResponse = (err: AppError) => {
+  return {
+    error: {
+      message: err.message,
+      appCode: err.appCode,
+      details: err.details || null,
+    },
+  };
+};
+
 export default (
   err: AppError,
   req: Request,
@@ -10,11 +20,5 @@ export default (
   console.error(err);
 
   const statusCode = err.statusCode || 500;
-  res.status(statusCode).json({
-    error: {
-      message: err.message,
-      appCode: err.appCode,
-      details: err.details || null,
-    },
-  });
+  res.status(statusCode).json(buildErrorResponse(err));
 };

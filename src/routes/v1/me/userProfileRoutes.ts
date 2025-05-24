@@ -8,6 +8,7 @@ import {
   uploadProfilePicture,
   uploadProfilePictureMiddleware,
 } from "@controllers/pfpUpload";
+import { profileUploadRateLimiter } from "@middleware/ratelimiters";
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.get("/profile", getUserProfile);
 router.put("/profile", editUserProfile);
 router.post(
   "/profile-picture",
+  profileUploadRateLimiter,
   uploadProfilePictureMiddleware,
   uploadProfilePicture
 );
