@@ -10,7 +10,7 @@ export const uploadProfilePictureMiddleware = makeSingleUploadMiddleware(
   "profilePicture",
   {
     maxSizeMB: 2,
-    allowedMimeTypes: ["image/jpeg", "image/png"],
+    allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
   }
 );
 
