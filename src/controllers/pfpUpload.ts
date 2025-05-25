@@ -55,7 +55,7 @@ export const uploadProfilePicture = async (
 
       await s3
         .deleteObject({
-          Bucket: process.env.AWS_S3_BUCKET!,
+          Bucket: process.env.AWS_S3_PFP_BUCKET!,
           Key: key,
         })
         .promise();
@@ -65,7 +65,7 @@ export const uploadProfilePicture = async (
 
     await s3
       .putObject({
-        Bucket: process.env.AWS_S3_BUCKET!,
+        Bucket: process.env.AWS_S3_PFP_BUCKET!,
         Key: key,
         Body: processedImage,
         ContentType: "image/jpeg",
@@ -73,7 +73,7 @@ export const uploadProfilePicture = async (
       })
       .promise();
 
-    const url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    const url = `https://${process.env.AWS_S3_PFP_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 
     await prisma.user.update({
       where: { id: user.id },
