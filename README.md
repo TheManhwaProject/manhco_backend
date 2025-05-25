@@ -53,8 +53,8 @@ manhco_backend/
 
 ### Prerequisites
 
-- Node.js (Latest LTS version recommended)
-- npm or yarn
+- Node.js (Latest LTS version recommended, v20+)
+- npm (v10+)
 - PostgreSQL Database (e.g., local instance, NeonDB, Supabase)
 
 ### Installation
@@ -67,9 +67,8 @@ manhco_backend/
 
 2.  **Install dependencies:**
     ```bash
-    npm install
-    # or
-    yarn install
+    npm install --include=optional
+    npm install --os=win32 --cpu=x64 sharp
     ```
 
 3.  **Generate Prisma client:**
@@ -108,6 +107,12 @@ COOKIE_SECRET="your_strong_random_secret_for_cookies" # Generate using the Pytho
 # JWT Secrets
 JWT_ACCESS_SECRET="your_strong_random_secret_for_access_tokens" # Generate using the Python command below
 JWT_REFRESH_SECRET="your_strong_random_secret_for_refresh_tokens" # Generate using the Python command below
+
+# AWS
+AWS_REGION="your_aws_region"
+AWS_ACCESS_KEY_ID="your_aws_access_key_id"
+AWS_SECRET_ACCESS_KEY="your_aws_secret_access_key"
+AWS_S3_PFP_BUCKET="profile_pictures"
 
 # --- How to Generate Secrets ---
 # Use this Python command in your terminal for each secret:

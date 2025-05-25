@@ -13,6 +13,8 @@ export enum ErrorAppCode {
   Unauthorised = "unauthorised",
   InsufficientPermissions = "insufficient_permissions",
   BadInput = "bad_input",
+  InternalServerError = "internal_server_error",
+  RateLimitExceeded = "rate_limit_exceeded",
 }
 
 export class AppError extends Error {
