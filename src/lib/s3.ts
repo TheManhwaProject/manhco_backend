@@ -1,12 +1,12 @@
-import AWS from "aws-sdk";
+import { S3Client } from "@aws-sdk/client-s3";
 
 const globalForS3 = globalThis as unknown as {
-  s3: AWS.S3 | undefined;
+  s3: S3Client | undefined;
 };
 
 export const s3 =
   globalForS3.s3 ??
-  new AWS.S3({
+  new S3Client({
     region: process.env.AWS_REGION,
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID!,

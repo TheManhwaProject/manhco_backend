@@ -5,6 +5,7 @@ import { prisma } from "@libs/prisma";
 import { randomUUID } from "crypto";
 import { AppError, ErrorAppCode } from "@utils/errorHandler";
 import { makeSingleUploadMiddleware } from "@utils/upload";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 
 export const uploadProfilePictureMiddleware = makeSingleUploadMiddleware(
   "profilePicture",
@@ -53,25 +54,25 @@ export const uploadProfilePicture = async (
       const url = new URL(userRecord.profilePic);
       const key = decodeURIComponent(url.pathname.slice(1));
 
-      await s3
-        .deleteObject({
+      await s3.send(
+        new DeleteObjectCommand({
           Bucket: process.env.AWS_S3_PFP_BUCKET!,
           Key: key,
         })
-        .promise();
+      );
     }
 
     const key = `profile-pictures/${user.id}/${randomUUID()}.jpeg`;
 
-    await s3
-      .putObject({
+    await s3.send(
+      new PutObjectCommand({
         Bucket: process.env.AWS_S3_PFP_BUCKET!,
         Key: key,
         Body: processedImage,
         ContentType: "image/jpeg",
         ACL: "public-read",
       })
-      .promise();
+    );
 
     const url = `https://${process.env.AWS_S3_PFP_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 
