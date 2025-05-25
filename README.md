@@ -53,8 +53,8 @@ manhco_backend/
 
 ### Prerequisites
 
-- Node.js (Latest LTS version recommended)
-- npm or yarn
+- Node.js (Latest LTS version recommended, v20+)
+- npm (v10+)
 - PostgreSQL Database (e.g., local instance, NeonDB, Supabase)
 
 ### Installation
@@ -67,9 +67,8 @@ manhco_backend/
 
 2.  **Install dependencies:**
     ```bash
-    npm install
-    # or
-    yarn install
+    npm install --include=optional
+    npm install --os=win32 --cpu=x64 sharp
     ```
 
 3.  **Generate Prisma client:**
