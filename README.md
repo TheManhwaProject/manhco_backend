@@ -46,7 +46,7 @@ manhco_backend/
 │   ├── schemas/              # Zod validation schemas
 │   │   └── manhwaSchemas.ts  # Manhwa request validation
 │   ├── services/             # Business logic services
-│   │   ├── mangadexService.ts # MangaDx API integration
+│   │   ├── mangadexService.ts # MangaDex API integration
 │   │   ├── manhwaService.ts  # Core manhwa business logic
 │   │   └── manhwaSearchService.ts # Full-text search implementation
 │   ├── types/                # Custom TypeScript types/interfaces
@@ -124,10 +124,10 @@ COOKIE_SECRET="your_strong_random_secret_for_cookies" # Generate using the Pytho
 JWT_ACCESS_SECRET="your_strong_random_secret_for_access_tokens" # Generate using the Python command below
 JWT_REFRESH_SECRET="your_strong_random_secret_for_refresh_tokens" # Generate using the Python command below
 
-# MangaDx API Configuration (for Korean manhwa service)
-MANGADX_API_URL="https://api.mangadx.org"
-MANGADX_USERNAME="your_mangadx_username"
-MANGADX_PASSWORD="your_mangadx_password"
+# MangaDex API Configuration (for Korean manhwa service)
+MANGADEX_API_URL="https://api.mangadex.org"
+MANGADEX_USERNAME="your_mangadex_username"
+MANGADEX_PASSWORD="your_mangadex_password"
 
 # Background Sync Configuration
 SYNC_BATCH_SIZE=10                  # Number of manhwa to sync per batch
@@ -218,7 +218,7 @@ Refer to `prisma/schema.prisma` for detailed definitions and relationships.
 The Korean Manhwa Service is a comprehensive data management system that provides:
 
 - **Korean-only content validation** - Strict filtering to serve only Korean manhwa
-- **MangaDx API integration** - Automated data synchronization with external sources
+- **MangaDex API integration** - Automated data synchronization with external sources
 - **Full-text search** - PostgreSQL-powered search with relevance ranking
 - **Background sync jobs** - Automated data updates with retry logic
 - **Intelligent caching** - Multi-layer caching for optimal performance
@@ -227,7 +227,7 @@ The Korean Manhwa Service is a comprehensive data management system that provide
 ### Key Features
 
 #### 🇰🇷 **Korean Content Filtering**
-- API-level filtering: `originalLanguage[]=ko` on all MangaDx calls
+- API-level filtering: `originalLanguage[]=ko` on all MangaDex calls
 - Import validation: Rejects non-Korean content during manual imports
 - Content validation: Validates Korean manhwa exclusively
 
@@ -235,7 +235,7 @@ The Korean Manhwa Service is a comprehensive data management system that provide
 - Full-text search using PostgreSQL `to_tsvector` with English language processing
 - Relevance ranking with `ts_rank` scoring
 - Genre filtering and status-based searches
-- External search fallback to MangaDx when local results are insufficient
+- External search fallback to MangaDex when local results are insufficient
 
 #### 🔄 **Background Synchronization**
 - Automated sync every 15 minutes (configurable)
@@ -259,7 +259,7 @@ The Korean Manhwa Service is a comprehensive data management system that provide
 - `GET /api/v1/manhwa/genres` - Get available genres
 
 #### Admin Endpoints
-- `POST /api/v1/admin/manhwa/import` - Import manhwa from MangaDx
+- `POST /api/v1/admin/manhwa/import` - Import manhwa from MangaDex
 - `POST /api/v1/admin/manhwa/sync/:id` - Force sync single manhwa
 - `POST /api/v1/admin/manhwa/sync/all` - Trigger full sync
 - `GET /api/v1/admin/manhwa/sync/status` - Get sync job status
@@ -269,18 +269,18 @@ The Korean Manhwa Service is a comprehensive data management system that provide
 ### Data Flow
 
 1. **Search Request** → Cache Check → Local Database → External API (if needed)
-2. **Background Sync** → Priority Queue → MangaDx API → Database Update → Cache Invalidation
-3. **Manual Import** → Korean Validation → MangaDx Fetch → Database Insert → Cache Update
+2. **Background Sync** → Priority Queue → MangaDex API → Database Update → Cache Invalidation
+3. **Manual Import** → Korean Validation → MangaDex Fetch → Database Insert → Cache Update
 
 ### Configuration
 
 The manhwa service uses these environment variables:
 
 ```env
-# MangaDx API
-MANGADX_API_URL=https://api.mangadx.org
-MANGADX_USERNAME=your_username
-MANGADX_PASSWORD=your_password
+# MangaDex API
+MANGADEX_API_URL=https://api.mangadex.org
+MANGADEX_USERNAME=your_username
+MANGADEX_PASSWORD=your_password
 
 # Background Sync
 SYNC_BATCH_SIZE=10
@@ -296,8 +296,8 @@ The manhwa service uses these main tables:
 - `manhwa_genres` - Many-to-many relationship table
 
 Key fields:
-- `mangadx_id` - External MangaDx identifier
-- `data_source` - Either 'LOCAL' or 'MANGADX'
+- `mangadex_id` - External MangaDex identifier
+- `data_source` - Either 'LOCAL' or 'MANGADEX'
 - `title_data` - JSON structure with primary/alternative titles
 - `sync_status` - Sync state ('CURRENT', 'FAILED', 'PENDING')
 - `search_vector` - PostgreSQL full-text search index
