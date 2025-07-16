@@ -13,6 +13,17 @@ export enum ErrorAppCode {
   Unauthorised = "unauthorised",
   InsufficientPermissions = "insufficient_permissions",
   BadInput = "bad_input",
+  
+  // Manhwa-specific errors
+  ManhwaNotFound = "manhwa_not_found",
+  ManhwaSearchFailed = "manhwa_search_failed",
+  ExternalApiError = "external_api_error",
+  RateLimitExceeded = "rate_limit_exceeded",
+  InvalidManhwaData = "invalid_manhwa_data",
+  SyncFailed = "sync_failed",
+  ImageProcessingFailed = "image_processing_failed",
+  ContentFilterRequired = "content_filter_required", // For adult content
+  PaginationLimitExceeded = "pagination_limit_exceeded", // For 10k limit
 }
 
 export class AppError extends Error {
