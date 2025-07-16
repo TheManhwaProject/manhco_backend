@@ -6,5 +6,6 @@ prisma/dev.db
 CLAUDE.md
 ARCHITECTURE_ANALYSIS.md
 MANHWA_SERVICE_README.md
-manhwa-docs/
-**/manhwa-docs/
+manhwa data service docs/
+"manhwa data service docs/"
+**/manhwa?data?service?docs/
