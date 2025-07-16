@@ -85,3 +85,76 @@ model roles {
 
   @@schema("auth")
 }
+
+// Manhwa Data Service Models
+enum DataSource {
+  LOCAL
+  MANGADX
+
+  @@schema("manhco")
+}
+
+enum PublicationStatus {
+  ONGOING
+  COMPLETED
+  HIATUS
+  CANCELLED
+
+  @@schema("manhco")
+}
+
+enum SyncStatus {
+  CURRENT
+  OUTDATED
+  FAILED
+
+  @@schema("manhco")
+}
+
+model Manhwa {
+  id                Int               @id @default(autoincrement())
+  mangadexId        String?           @unique @db.VarChar(255)
+  dataSource        DataSource        @default(LOCAL)
+  titleData         Json              // Stores primary title and alternatives
+  status            PublicationStatus
+  startYear         Int?
+  endYear           Int?
+  publisher         String?           @db.VarChar(255)
+  synopsis          String            @db.Text
+  totalChapters     Int?
+  specialChapters   Json?             // Array of special chapter info
+  coverThumbnail    String?           @db.VarChar(500)
+  coverMedium       String?           @db.VarChar(500)
+  coverLarge        String?           @db.VarChar(500)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  lastSyncedAt      DateTime?
+  syncStatus        SyncStatus        @default(CURRENT)
+  version           Int               @default(1)
+  searchVector      String?           @db.Text // For full-text search
+  genres            ManhwaGenre[]     // Many-to-many relationship
+
+  @@map("manhwa")
+  @@schema("manhco")
+}
+
+model Genre {
+  id      Int           @id @default(autoincrement())
+  name    String        @unique @db.VarChar(100)
+  slug    String        @unique @db.VarChar(100)
+  manhwa  ManhwaGenre[] // Many-to-many relationship
+
+  @@map("genres")
+  @@schema("manhco")
+}
+
+model ManhwaGenre {
+  manhwaId Int
+  genreId  Int
+  manhwa   Manhwa @relation(fields: [manhwaId], references: [id], onDelete: Cascade)
+  genre    Genre  @relation(fields: [genreId], references: [id])
+
+  @@id([manhwaId, genreId])
+  @@map("manhwa_genres")
+  @@schema("manhco")
+}
