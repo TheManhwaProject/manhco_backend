@@ -21,6 +21,10 @@ Manhco Backend provides the core RESTful API services for the Manhco application
 - **Environment Management**: `dotenv` for environment variables
 - **Modular Design**: Multi-schema database, module aliases for cleaner imports
 - **Error Handling**: Centralized error handling middleware
+- **Korean Manhwa Service**: Comprehensive manhwa data management with MangaDex integration
+- **Full-text Search**: PostgreSQL-powered search with relevance ranking
+- **Background Sync**: Automated manhwa data synchronization with retry logic
+- **Caching Layer**: Redis-compatible caching for optimal performance
 
 ## Project Structure
 
@@ -31,14 +35,25 @@ manhco_backend/
 ├── src/
 │   ├── config/               # Configuration files (if any)
 │   ├── controllers/          # Request handlers (logic)
+│   │   └── manhwaController.ts # Korean manhwa API endpoints
+│   ├── jobs/                 # Background job processors
+│   │   └── manhwaSyncJob.ts  # Automated manhwa data synchronization
 │   ├── lib/                  # Shared libraries (e.g., Prisma client)
 │   ├── middleware/           # Express middleware (auth, error, session, csrf)
 │   ├── passport/             # Passport.js strategy configurations (e.g., Google)
 │   ├── routes/               # API route definitions (v1)
+│   │   └── v1/manhwa/        # Manhwa API routes
 │   ├── schemas/              # Zod validation schemas
+│   │   └── manhwaSchemas.ts  # Manhwa request validation
 │   ├── services/             # Business logic services
+│   │   ├── mangadexService.ts # MangaDx API integration
+│   │   ├── manhwaService.ts  # Core manhwa business logic
+│   │   └── manhwaSearchService.ts # Full-text search implementation
 │   ├── types/                # Custom TypeScript types/interfaces
+│   │   └── manhwa.ts         # Manhwa type definitions
 │   ├── utils/                # Utility functions
+│   │   ├── cache.ts          # Caching utilities
+│   │   └── requestCoalescer.ts # Request deduplication
 │   ├── app.ts                # Express application configuration (middleware, etc.)
 │   └── server.ts             # Server entry point (starts server, defines routes)
 ├── .env                      # Environment variables (ignored by git)
@@ -108,6 +123,15 @@ COOKIE_SECRET="your_strong_random_secret_for_cookies" # Generate using the Pytho
 # JWT Secrets
 JWT_ACCESS_SECRET="your_strong_random_secret_for_access_tokens" # Generate using the Python command below
 JWT_REFRESH_SECRET="your_strong_random_secret_for_refresh_tokens" # Generate using the Python command below
+
+# MangaDx API Configuration (for Korean manhwa service)
+MANGADX_API_URL="https://api.mangadx.org"
+MANGADX_USERNAME="your_mangadx_username"
+MANGADX_PASSWORD="your_mangadx_password"
+
+# Background Sync Configuration
+SYNC_BATCH_SIZE=10                  # Number of manhwa to sync per batch
+SYNC_CRON_SCHEDULE="*/15 * * * *"   # Cron schedule for background sync (every 15 minutes)
 
 # --- How to Generate Secrets ---
 # Use this Python command in your terminal for each secret:
@@ -186,6 +210,97 @@ The database utilizes Prisma's multi-schema feature for logical separation:
 -   **`auth`**: Contains tables related to authentication and authorization (e.g., `roles`, `refresh_tokens` tables).
 
 Refer to `prisma/schema.prisma` for detailed definitions and relationships.
+
+## Korean Manhwa Service
+
+### Overview
+
+The Korean Manhwa Service is a comprehensive data management system that provides:
+
+- **Korean-only content validation** - Strict filtering to serve only Korean manhwa
+- **MangaDx API integration** - Automated data synchronization with external sources
+- **Full-text search** - PostgreSQL-powered search with relevance ranking
+- **Background sync jobs** - Automated data updates with retry logic
+- **Intelligent caching** - Multi-layer caching for optimal performance
+- **British audience optimization** - English-first titles with Korean fallbacks
+
+### Key Features
+
+#### 🇰🇷 **Korean Content Filtering**
+- API-level filtering: `originalLanguage[]=ko` on all MangaDx calls
+- Import validation: Rejects non-Korean content during manual imports
+- Content validation: Validates Korean manhwa exclusively
+
+#### 🔍 **Advanced Search**
+- Full-text search using PostgreSQL `to_tsvector` with English language processing
+- Relevance ranking with `ts_rank` scoring
+- Genre filtering and status-based searches
+- External search fallback to MangaDx when local results are insufficient
+
+#### 🔄 **Background Synchronization**
+- Automated sync every 15 minutes (configurable)
+- Priority-based queue (failed syncs get higher priority)
+- Batch processing with configurable batch sizes
+- Retry logic with exponential backoff
+
+#### 🚀 **Performance Optimizations**
+- Request coalescing to prevent duplicate API calls
+- Multi-layer caching (search results, entities, tags)
+- Background refresh without blocking user requests
+- Smart cache invalidation with pattern matching
+
+### API Endpoints
+
+#### Public Endpoints
+- `GET /api/v1/manhwa/search` - Search Korean manhwa
+- `GET /api/v1/manhwa/:id` - Get single manhwa by ID
+- `GET /api/v1/manhwa/trending` - Get trending manhwa
+- `GET /api/v1/manhwa/recent` - Get recently added manhwa
+- `GET /api/v1/manhwa/genres` - Get available genres
+
+#### Admin Endpoints
+- `POST /api/v1/admin/manhwa/import` - Import manhwa from MangaDx
+- `POST /api/v1/admin/manhwa/sync/:id` - Force sync single manhwa
+- `POST /api/v1/admin/manhwa/sync/all` - Trigger full sync
+- `GET /api/v1/admin/manhwa/sync/status` - Get sync job status
+- `GET /api/v1/admin/manhwa/cache/status` - Get cache statistics
+- `POST /api/v1/admin/manhwa/cache/clear` - Clear cache patterns
+
+### Data Flow
+
+1. **Search Request** → Cache Check → Local Database → External API (if needed)
+2. **Background Sync** → Priority Queue → MangaDx API → Database Update → Cache Invalidation
+3. **Manual Import** → Korean Validation → MangaDx Fetch → Database Insert → Cache Update
+
+### Configuration
+
+The manhwa service uses these environment variables:
+
+```env
+# MangaDx API
+MANGADX_API_URL=https://api.mangadx.org
+MANGADX_USERNAME=your_username
+MANGADX_PASSWORD=your_password
+
+# Background Sync
+SYNC_BATCH_SIZE=10
+SYNC_CRON_SCHEDULE="*/15 * * * *"
+```
+
+### Database Schema
+
+The manhwa service uses these main tables:
+
+- `manhwa` - Core manhwa data with JSON title structure
+- `genres` - Genre definitions with slugs
+- `manhwa_genres` - Many-to-many relationship table
+
+Key fields:
+- `mangadx_id` - External MangaDx identifier
+- `data_source` - Either 'LOCAL' or 'MANGADX'
+- `title_data` - JSON structure with primary/alternative titles
+- `sync_status` - Sync state ('CURRENT', 'FAILED', 'PENDING')
+- `search_vector` - PostgreSQL full-text search index
 
 ## Authentication & Authorization
 
