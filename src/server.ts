@@ -53,6 +53,13 @@ app.use("/api/v1", router);
 app
   .listen(PORT, "localhost", function () {
     console.log(`Server running on port ${PORT}.`);
+    
+    // Initialize background jobs
+    import('./jobs/manhwaSyncJob').then(() => {
+      console.log('[Server] Background jobs initialized');
+    }).catch(err => {
+      console.error('[Server] Failed to initialize background jobs:', err);
+    });
   })
   .on("error", (err: any) => {
     if (err.code === "EADDRINUSE") {
