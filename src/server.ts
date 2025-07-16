@@ -20,6 +20,9 @@ const requiredAuthEnvVars: string[] = [
   "JWT_REFRESH_SECRET",
   "SESSION_SECRET",
   "DATABASE_URL", // Crucial for token/user storage
+  "MANGADX_API_URL",
+  "MANGADX_USERNAME",
+  "MANGADX_PASSWORD",
 ];
 
 const missingAuthEnvVars: string[] = requiredAuthEnvVars.filter(
