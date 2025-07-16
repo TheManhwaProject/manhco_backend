@@ -47,7 +47,7 @@ export class AppError extends Error {
 
 export const parsePrismaError = (err: any): AppError => {
   if (err.name === "ZodError") {
-    return new AppError("Validation failed", 400, err.errors);
+    return new AppError("Validation failed", 400, ErrorAppCode.BadInput);
   }
 
   // TODO: Add more error codes

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as manhwaService from '@services/manhwaService';
+import * as searchService from '@services/manhwaSearchService';
 import { 
   searchManhwaSchema, 
   createManhwaSchema,
@@ -7,7 +8,6 @@ import {
   importManhwaSchema
 } from '@schemas/manhwaSchemas';
 import { AppError, ErrorAppCode, parsePrismaError } from '@utils/errorHandler';
-import { prisma } from '@libs/prisma';
 import * as cache from '@utils/cache';
 
 // Search manhwa - our most complex endpoint
@@ -248,6 +248,3 @@ export const clearCache = async (
     next(err);
   }
 };
-
-// Import to fix the missing searchService import
-import * as searchService from '@services/manhwaSearchService';

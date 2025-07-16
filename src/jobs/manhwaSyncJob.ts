@@ -20,7 +20,7 @@ class ManhwaSyncJob extends EventEmitter {
   }
   
   private setupCronJobs(): void {
-    const schedule = process.env.SYNC_CRON_SCHEDULE || '0 */6 * * *'; // Every 6 hours
+    const schedule = process.env.SYNC_CRON_SCHEDULE || '*/15 * * * *'; // Every 15 minutes
     
     cron.schedule(schedule, async () => {
       console.log('[ManhwaSyncJob] Starting scheduled sync...');

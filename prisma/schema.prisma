@@ -89,7 +89,7 @@ model roles {
 // Manhwa Data Service Models
 enum DataSource {
   LOCAL
-  MANGADX
+  MANGADEX
 
   @@schema("manhco")
 }
@@ -131,7 +131,7 @@ model Manhwa {
   lastSyncedAt      DateTime?
   syncStatus        SyncStatus        @default(CURRENT)
   version           Int               @default(1)
-  searchVector      String?           @db.Text // For full-text search
+  searchVector      Unsupported("tsvector")? // For PostgreSQL full-text search
   genres            ManhwaGenre[]     // Many-to-many relationship
 
   @@map("manhwa")
