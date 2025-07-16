@@ -16,8 +16,8 @@ import { requestCoalescer } from '@utils/requestCoalescer';
 const parseManhwaEntity = (raw: any): ManhwaEntity => {
   return {
     ...raw,
-    titleData: raw.titleData as any,
-    specialChapters: raw.specialChapters as any,
+    titleData: raw.titleData || { primary: '', alternatives: [] },
+    specialChapters: raw.specialChapters || [],
     genres: raw.genres?.map((g: any) => ({
       genre: g.genre
     }))
@@ -90,7 +90,15 @@ export const searchManhwa = async (params: SearchParams): Promise<SearchResponse
     
     return result;
   } catch (error) {
-    throw parsePrismaError(error);
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(
+      'Search failed',
+      500,
+      ErrorAppCode.ManhwaSearchFailed,
+      error
+    );
   }
 };
 
@@ -157,7 +165,15 @@ export const getManhwaById = async (
     
     return parsed;
   } catch (error) {
-    throw parsePrismaError(error);
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(
+      'Failed to retrieve manhwa',
+      500,
+      ErrorAppCode.ManhwaNotFound,
+      error
+    );
   }
 };
 
@@ -209,7 +225,15 @@ export const createManhwa = async (data: CreateManhwaDto): Promise<ManhwaEntity>
     
     return parsed;
   } catch (error) {
-    throw parsePrismaError(error);
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(
+      'Failed to create manhwa',
+      500,
+      ErrorAppCode.InvalidManhwaData,
+      error
+    );
   }
 };
 
@@ -249,7 +273,15 @@ export const getManhwaByIds = async (
         })
       );
     } catch (error) {
-      throw parsePrismaError(error);
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(
+        'Failed to fetch manhwa entities',
+        500,
+        ErrorAppCode.ManhwaNotFound,
+        error
+      );
     }
   }
   
@@ -434,7 +466,15 @@ export const importFromMangadex = async (
     
     return parseManhwaEntity(manhwa);
   } catch (error) {
-    throw parsePrismaError(error);
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(
+      'Failed to import from Mangadex',
+      500,
+      ErrorAppCode.ExternalApiError,
+      error
+    );
   }
 };
 
@@ -445,6 +485,14 @@ export const getAllGenres = async () => {
       orderBy: { name: 'asc' }
     });
   } catch (error) {
-    throw parsePrismaError(error);
+    if (error instanceof AppError) {
+      throw error;
+    }
+    throw new AppError(
+      'Failed to retrieve genres',
+      500,
+      ErrorAppCode.ServerError,
+      error
+    );
   }
 };

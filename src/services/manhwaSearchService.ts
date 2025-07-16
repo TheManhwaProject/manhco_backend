@@ -1,5 +1,5 @@
 import { prisma } from '@libs/prisma';
-import { Prisma } from '@prisma/client';
+import { Prisma, PublicationStatus } from '@prisma/client';
 import { 
   SearchParams, 
   SearchResponse, 
@@ -18,7 +18,7 @@ const buildSearchWhere = (params: SearchParams): Prisma.ManhwaWhereInput => {
     // Status filter
     if (params.filters.status?.length) {
       where.status = {
-        in: params.filters.status.map(s => s.toUpperCase()) as any
+        in: params.filters.status.map(s => s.toUpperCase() as PublicationStatus)
       };
     }
     
@@ -194,7 +194,7 @@ export const searchManhwaFullText = async (
       // Transform results
       const searchResults: ManhwaSearchResult[] = results.map(manhwa => ({
         id: manhwa.id,
-        title: (manhwa.titleData as any).primary,
+        title: (manhwa.titleData as { primary: string }).primary,
         coverThumbnail: manhwa.coverThumbnail,
         synopsis: manhwa.synopsis.substring(0, 200) + '...',
         status: manhwa.status.toLowerCase(),
@@ -276,7 +276,7 @@ export const getTrendingManhwa = async (
     
     return results.map(manhwa => ({
       id: manhwa.id,
-      title: (manhwa.titleData as any).primary,
+      title: (manhwa.titleData as { primary: string }).primary,
       coverThumbnail: manhwa.coverThumbnail,
       synopsis: manhwa.synopsis.substring(0, 200) + '...',
       status: manhwa.status.toLowerCase(),
@@ -324,7 +324,7 @@ export const getRecentlyAdded = async (
     
     return results.map(manhwa => ({
       id: manhwa.id,
-      title: (manhwa.titleData as any).primary,
+      title: (manhwa.titleData as { primary: string }).primary,
       coverThumbnail: manhwa.coverThumbnail,
       synopsis: manhwa.synopsis.substring(0, 200) + '...',
       status: manhwa.status.toLowerCase(),

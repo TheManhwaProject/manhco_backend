@@ -30,7 +30,7 @@ export const searchManhwa = async (
     res.json(results);
   } catch (err) {
     // Let error middleware handle it
-    next(parsePrismaError(err));
+    next(err);
   }
 };
 
@@ -58,7 +58,7 @@ export const getManhwaById = async (
     
     res.json(manhwa);
   } catch (err) {
-    next(parsePrismaError(err));
+    next(err);
   }
 };
 
@@ -74,7 +74,7 @@ export const createManhwa = async (
     
     res.status(201).json(manhwa);
   } catch (err) {
-    next(parsePrismaError(err));
+    next(err);
   }
 };
 
@@ -100,7 +100,7 @@ export const getManhwaBulk = async (
       notFound
     });
   } catch (err) {
-    next(parsePrismaError(err));
+    next(err);
   }
 };
 
@@ -136,7 +136,7 @@ export const refreshManhwa = async (
     
     res.json(result);
   } catch (err) {
-    next(parsePrismaError(err));
+    next(err);
   }
 };
 
@@ -152,7 +152,7 @@ export const importFromMangadex = async (
     
     res.status(201).json(manhwa);
   } catch (err) {
-    next(parsePrismaError(err));
+    next(err);
   }
 };
 
@@ -169,7 +169,7 @@ export const getGenres = async (
     res.set('Cache-Control', 'public, max-age=86400');
     res.json(genres);
   } catch (err) {
-    next(parsePrismaError(err));
+    next(err);
   }
 };
 
@@ -185,7 +185,7 @@ export const getTrending = async (
     
     res.json(results);
   } catch (err) {
-    next(parsePrismaError(err));
+    next(err);
   }
 };
 
@@ -201,7 +201,7 @@ export const getRecentlyAdded = async (
     
     res.json(results);
   } catch (err) {
-    next(parsePrismaError(err));
+    next(err);
   }
 };
 
