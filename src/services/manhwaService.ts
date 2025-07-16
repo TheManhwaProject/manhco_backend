@@ -388,8 +388,8 @@ const searchMangadexWithMapping = async (
   });
 };
 
-// Import from Mangadex
-export const importFromMangadex = async (
+// Import Korean manhwa from Mangadx (validates Korean content)
+export const importFromMangadx = async (
   mangadexId: string
 ): Promise<ManhwaEntity> => {
   try {
@@ -400,7 +400,7 @@ export const importFromMangadex = async (
     
     if (existing) {
       throw new AppError(
-        'This manga is already in the database',
+        'This Korean manhwa is already in the database',
         400,
         ErrorAppCode.BadInput
       );

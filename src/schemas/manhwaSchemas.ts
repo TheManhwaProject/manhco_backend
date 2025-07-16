@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+// 🚨 MANHCO = KOREAN MANHWA ONLY
+// All validation schemas assume Korean content exclusively
 // Search validation with API limits in mind
 export const searchManhwaSchema = z.object({
   query: z.string()

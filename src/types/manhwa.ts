@@ -1,6 +1,10 @@
 import { Manhwa as PrismaManhwa, Genre as PrismaGenre, DataSource, PublicationStatus, SyncStatus } from '@prisma/client';
 
-// Title structure matches Mangadex's complex title system
+// 🚨 MANHCO = KOREAN MANHWA ONLY
+// This platform exclusively serves Korean comics (manhwa), not manga or manhua
+// All content should have originalLanguage: 'ko' from Mangadx
+
+// Title structure matches Mangadx's complex title system
 export interface ManhwaTitleData {
   primary: string;              // Main title to display
   alternatives: Array<{

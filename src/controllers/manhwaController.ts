@@ -10,7 +10,7 @@ import {
 import { AppError, ErrorAppCode, parsePrismaError } from '@utils/errorHandler';
 import * as cache from '@utils/cache';
 
-// Search manhwa - our most complex endpoint
+// Search Korean manhwa - our most complex endpoint (Korean content only)
 export const searchManhwa = async (
   req: Request,
   res: Response,
@@ -140,8 +140,8 @@ export const refreshManhwa = async (
   }
 };
 
-// Import from Mangadex (admin only)
-export const importFromMangadex = async (
+// Import Korean manhwa from Mangadx (admin only - validates Korean content)
+export const importFromMangadx = async (
   req: Request,
   res: Response,
   next: NextFunction

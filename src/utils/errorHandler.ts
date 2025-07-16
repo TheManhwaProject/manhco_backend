@@ -24,6 +24,7 @@ export enum ErrorAppCode {
   ImageProcessingFailed = "image_processing_failed",
   ContentFilterRequired = "content_filter_required", // For adult content
   PaginationLimitExceeded = "pagination_limit_exceeded", // For 10k limit
+  InvalidContent = "invalid_content", // For non-Korean content
 }
 
 export class AppError extends Error {

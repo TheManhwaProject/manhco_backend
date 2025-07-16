@@ -161,7 +161,7 @@ const ensureValidToken = async (): Promise<string> => {
   }
 };
 
-// Search manga with all available filters
+// Search Korean manhwa only with all available filters
 export const searchMangadex = async (
   query: string,
   options: {
@@ -180,7 +180,9 @@ export const searchMangadex = async (
       limit: Math.min(options.limit || 20, 100), // Enforce API limit
       offset: options.offset || 0,
       'order[relevance]': 'desc',
-      'includes[]': ['cover_art', 'author', 'artist']
+      'includes[]': ['cover_art', 'author', 'artist'],
+      // 🚨 KOREAN MANHWA ONLY - Critical for Manhco (Korean comic platform)
+      'originalLanguage[]': 'ko'
     };
     
     // Check pagination limit (API rejects offset + limit > 10,000)
@@ -242,7 +244,7 @@ export const searchMangadex = async (
   }
 };
 
-// Get single manga by ID
+// Get single manhwa by ID (should be Korean content)
 export const getMangadexById = async (mangadexId: string): Promise<MangadexManga> => {
   try {
     const response = await axiosInstance.get(`/manga/${mangadexId}`, {
@@ -251,7 +253,18 @@ export const getMangadexById = async (mangadexId: string): Promise<MangadexManga
       }
     });
     
-    return response.data.data;
+    const manhwa = response.data.data;
+    
+    // Validate it's Korean content (critical for Manhco)
+    if (manhwa.attributes.originalLanguage !== 'ko') {
+      throw new AppError(
+        'This content is not a Korean manhwa. Manhco only serves Korean comics.',
+        400,
+        ErrorAppCode.InvalidContent
+      );
+    }
+    
+    return manhwa;
   } catch (error) {
     if (error instanceof AppError) throw error;
     
