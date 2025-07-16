@@ -5,7 +5,7 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- Create enums
-CREATE TYPE manhco."DataSource" AS ENUM ('LOCAL', 'MANGADX');
+CREATE TYPE manhco."DataSource" AS ENUM ('LOCAL', 'Mangadex');
 CREATE TYPE manhco."PublicationStatus" AS ENUM ('ONGOING', 'COMPLETED', 'HIATUS', 'CANCELLED');
 CREATE TYPE manhco."SyncStatus" AS ENUM ('CURRENT', 'OUTDATED', 'FAILED');
 

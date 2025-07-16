@@ -2,16 +2,17 @@ import { Manhwa as PrismaManhwa, Genre as PrismaGenre, DataSource, PublicationSt
 
 // 🚨 MANHCO = KOREAN MANHWA ONLY
 // This platform exclusively serves Korean comics (manhwa), not manga or manhua
-// All content should have originalLanguage: 'ko' from Mangadx
+// All content should have originalLanguage: 'ko' from Mangadex
 
-// Title structure matches Mangadx's complex title system
+// Title structure matches Mangadex's complex title system
 export interface ManhwaTitleData {
   primary: string;              // Main title to display
-  alternatives: Array<{
+  alternatives?: Array<{
     language: string;           // ISO 639-1 code (en, ko, ja, etc.)
     title: string;
   }>;
   romanized?: string;           // Romanized version of Asian titles
+  [key: string]: any;           // Allow additional properties for Prisma JSON compatibility
 }
 
 // Special chapters like prologues, .5 chapters, omakes
@@ -34,10 +35,10 @@ export interface ManhwaEntity extends Omit<PrismaManhwa, 'titleData' | 'specialC
 export interface ManhwaSearchResult {
   id: number;
   title: string;
-  coverThumbnail?: string;
+  coverThumbnail?: string | null;
   synopsis: string;              // Truncated to 200 chars
   status: string;
-  totalChapters?: number;
+  totalChapters?: number | null;
   genres: string[];
   score?: number;                // PostgreSQL ts_rank score
 }

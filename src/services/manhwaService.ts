@@ -6,7 +6,7 @@ import {
   SearchParams,
   SearchResponse,
   ManhwaSearchResult
-} from '@types/manhwa';
+} from '../types/manhwa';
 import * as mangadexService from './mangadexService';
 import * as searchService from './manhwaSearchService';
 import * as cache from '@utils/cache';
@@ -277,16 +277,17 @@ export const syncFromMangadex = async (
       coverLarge: mangadexService.getMangadexCoverUrl(mangadexData, 'large')
     };
     
-    // Update with new data
+    // Update with new data (exclude id field)
+    const { id: _id, ...updateData } = transformed;
     await prisma.manhwa.update({
       where: { id },
       data: {
-        ...transformed,
+        ...updateData,
         ...covers,
         lastSyncedAt: new Date(),
         syncStatus: 'CURRENT',
         version: { increment: 1 }
-      }
+      } as any
     });
     
     // Invalidate caches
@@ -388,8 +389,8 @@ const searchMangadexWithMapping = async (
   });
 };
 
-// Import Korean manhwa from Mangadx (validates Korean content)
-export const importFromMangadx = async (
+// Import Korean manhwa from Mangadex (validates Korean content)
+export const importFromMangadex = async (
   mangadexId: string
 ): Promise<ManhwaEntity> => {
   try {
@@ -417,14 +418,15 @@ export const importFromMangadx = async (
       coverLarge: mangadexService.getMangadexCoverUrl(mangadexData, 'large')
     };
     
-    // Create new entry
+    // Create new entry (exclude id field)
+    const { id: _id, ...createData } = transformed;
     const manhwa = await prisma.manhwa.create({
       data: {
-        ...transformed,
+        ...createData,
         ...covers,
         lastSyncedAt: new Date(),
         syncStatus: 'CURRENT'
-      },
+      } as any,
       include: {
         genres: { include: { genre: true } }
       }

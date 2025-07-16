@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { authenticate, requireExactRoles } from "@middleware/authMiddleware";
 import contentFilterRoutes from "./contentFilterRoutes";
-import { manhwaSyncJob } from "@jobs/manhwaSyncJob";
-import { AppError, ErrorAppCode } from "@utils/errorHandler";
-import { validateCsrfToken } from "@middleware/csrfMiddleware";
-import * as manhwaService from "@services/manhwaService";
+import { manhwaSyncJob } from "../../../jobs/manhwaSyncJob";
+import { AppError, ErrorAppCode } from "../../../utils/errorHandler";
+import { validateCsrfToken } from "../../../middleware/csrfMiddleware";
+import * as manhwaService from "../../../services/manhwaService";
 
 const router = Router();
 

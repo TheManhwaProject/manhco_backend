@@ -7,7 +7,7 @@ import {
   MangadexResponse,
   ManhwaTitleData,
   ManhwaEntity 
-} from '@types/manhwa';
+} from '../types/manhwa';
 
 // Named exports following our pattern
 let axiosInstance: AxiosInstance;
@@ -147,6 +147,14 @@ const ensureValidToken = async (): Promise<string> => {
     );
     
     authToken = response.data.token.session;
+    if (!authToken) {
+      throw new AppError(
+        'Invalid auth response from Mangadex',
+        500,
+        ErrorAppCode.ExternalApiError
+      );
+    }
+    
     // Token expires in 15 minutes, but we'll refresh at 14 to be safe
     tokenExpiry = new Date(Date.now() + 14 * 60 * 1000);
     
@@ -337,7 +345,7 @@ export const transformMangadexData = (manga: MangadexManga): Partial<ManhwaEntit
   
   return {
     mangadexId: manga.id,
-    dataSource: 'MANGADX',
+    dataSource: 'MANGADEX',
     titleData,
     status: statusMap[manga.attributes.status] || 'ONGOING',
     startYear: manga.attributes.year,

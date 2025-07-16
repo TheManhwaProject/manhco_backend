@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { prisma } from '@libs/prisma';
-import * as manhwaService from '@services/manhwaService';
+import * as manhwaService from '../services/manhwaService';
 import EventEmitter from 'events';
 
 class ManhwaSyncJob extends EventEmitter {
@@ -36,7 +36,7 @@ class ManhwaSyncJob extends EventEmitter {
       // Find manhwa needing sync
       const outdated = await prisma.manhwa.findMany({
         where: {
-          dataSource: 'MANGADX',
+          dataSource: 'MANGADEX',
           mangadexId: { not: null },
           OR: [
             { lastSyncedAt: null },

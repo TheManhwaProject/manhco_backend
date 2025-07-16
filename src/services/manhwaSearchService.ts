@@ -4,7 +4,7 @@ import {
   SearchParams, 
   SearchResponse, 
   ManhwaSearchResult 
-} from '@types/manhwa';
+} from '../types/manhwa';
 import { AppError, ErrorAppCode } from '@utils/errorHandler';
 
 // Named exports following our pattern
@@ -25,7 +25,7 @@ const buildSearchWhere = (params: SearchParams): Prisma.ManhwaWhereInput => {
     // Year range filter
     if (params.filters.yearRange) {
       where.AND = [
-        ...(where.AND || []),
+        ...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []),
         {
           OR: [
             {

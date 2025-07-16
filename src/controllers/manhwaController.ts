@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import * as manhwaService from '@services/manhwaService';
-import * as searchService from '@services/manhwaSearchService';
+import * as manhwaService from '../services/manhwaService';
+import * as searchService from '../services/manhwaSearchService';
 import { 
   searchManhwaSchema, 
   createManhwaSchema,
@@ -140,8 +140,8 @@ export const refreshManhwa = async (
   }
 };
 
-// Import Korean manhwa from Mangadx (admin only - validates Korean content)
-export const importFromMangadx = async (
+// Import Korean manhwa from Mangadex (admin only - validates Korean content)
+export const importFromMangadex = async (
   req: Request,
   res: Response,
   next: NextFunction
