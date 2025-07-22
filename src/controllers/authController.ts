@@ -74,7 +74,8 @@ export const handleGoogleAuthSuccess = async (
         firstName: user.firstName,
         secondName: user.secondName,
         profilePic: user.profilePic,
-        role: user.role,
+        role: user.role.name,
+        hasCompletedOnboarding: !user.newUser,
       },
     });
   } catch (error) {
@@ -191,6 +192,7 @@ export const getCurrentUser = async (
         profilePic: dbUser.profilePic,
         role: dbUser.role.name,
         newUser: dbUser.newUser,
+        hasCompletedOnboarding: !dbUser.newUser,
       },
     });
   } catch (error) {
