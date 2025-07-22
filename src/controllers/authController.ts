@@ -55,7 +55,7 @@ export const handleGoogleAuthSuccess = async (
     const tokenPayload: TokenPayload = {
       userId: user.id,
       email: user.email,
-      role: user.role,
+      role: user.role.name,
     };
 
     // Generate access token
